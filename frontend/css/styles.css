@@ -1,0 +1,145 @@
+
+/* =========================================
+   LOOPSTOCK - ESTILOS PRINCIPALES
+   MOBILE FIRST
+   ========================================= */
+
+
+/* =========================================
+   1. HOJAS DE ESTILO
+   ========================================= */
+
+@import url("./layout.css");
+@import url("./components.css");
+@import url("./products.css");
+@import url("./responsive.css");
+
+
+/* =========================================
+   2. VARIABLES GLOBALES
+   ========================================= */
+
+:root {
+  color-scheme: light;
+
+  /* Colores principales */
+  --primary: #163b50;
+  --primary-hover: #204f66;
+  --accent: #18856b;
+  --accent-hover: #116b56;
+
+  /* Superficies */
+  --background: #f3f6f8;
+  --surface: #ffffff;
+  --surface-hover: #edf2f5;
+
+  /* Texto y bordes */
+  --text: #243746;
+  --text-muted: #718096;
+  --border: #dce4e9;
+
+  /* Estados */
+  --success: #18856b;
+  --warning: #b7791f;
+  --danger: #c44747;
+
+  /* Dimensiones */
+  --sidebar-width: 250px;
+  --radius: 12px;
+  --shadow: 0 3px 12px rgba(22, 59, 80, 0.06);
+}
+
+
+/* =========================================
+   3. ESTILOS BASE
+   ========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 20px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+
+/* =========================================
+   4. MODO OSCURO
+   ========================================= */
+
+body.dark-mode {
+  color-scheme: dark;
+
+  /* Colores principales */
+  --primary: #101e28;
+  --primary-hover: #203744;
+  --accent: #36b995;
+  --accent-hover: #259b7b;
+
+  /* Superficies */
+  --background: #111a21;
+  --surface: #1a2731;
+  --surface-hover: #243641;
+
+  /* Texto y bordes */
+  --text: #e7eef2;
+  --text-muted: #a0b1bd;
+  --border: #344651;
+
+  /* Estados */
+  --success: #55c7a5;
+  --warning: #efbd61;
+  --danger: #f07878;
+
+  /* Sombras */
+  --shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+

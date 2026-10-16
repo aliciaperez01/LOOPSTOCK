@@ -1,0 +1,550 @@
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo musical | Loopstock</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f4f7f6;
+      color: #20352f;
+    }
+
+    h1 {
+      color: #176b58;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #176b58;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #results {
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Catálogo musical de Loopstock</h1>
+  <p>40 referencias de DJ, sintetizadores y producción musical.</p>
+  <p>Los productos existentes se conservarán. Solo se intentarán añadir los SKU que falten.</p>
+
+  <button id="load-button" type="button">
+    Añadir catálogo de 40 productos
+  </button>
+
+  <p id="status" role="status">Preparado para cargar.</p>
+  <p id="summary"></p>
+  <ul id="results"></ul>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/products";
+
+    const products = [
+      // 1-4. CAJAS DE RITMOS Y SAMPLERS
+      {
+        name: "Elektron Digitakt II",
+        sku: "DRM-ELE-001",
+        category: "Cajas de ritmos y samplers",
+        quantity: 2,
+        price: 999,
+        supplier: "Elektron",
+        minStock: 1
+      },
+      {
+        name: "Elektron Syntakt",
+        sku: "DRM-ELE-002",
+        category: "Cajas de ritmos y samplers",
+        quantity: 2,
+        price: 999,
+        supplier: "Elektron",
+        minStock: 1
+      },
+      {
+        name: "Native Instruments Maschine+",
+        sku: "DRM-NI-001",
+        category: "Cajas de ritmos y samplers",
+        quantity: 3,
+        price: 1099,
+        supplier: "Native Instruments",
+        minStock: 1
+      },
+      {
+        name: "Teenage Engineering PO-133 Street Fighter",
+        sku: "PO-TE-0133",
+        category: "Cajas de ritmos y samplers",
+        quantity: 2,
+        price: 99,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 5-10. SINTETIZADORES
+      {
+        name: "Korg minilogue xd",
+        sku: "SYN-KOR-001",
+        category: "Sintetizadores",
+        quantity: 4,
+        price: 649,
+        supplier: "Korg",
+        minStock: 1
+      },
+      {
+        name: "Korg Minilogue",
+        sku: "SYN-KOR-002",
+        category: "Sintetizadores",
+        quantity: 3,
+        price: 599,
+        supplier: "Korg",
+        minStock: 1
+      },
+      {
+        name: "Arturia MiniFreak",
+        sku: "SYN-ART-001",
+        category: "Sintetizadores",
+        quantity: 3,
+        price: 599,
+        supplier: "Arturia",
+        minStock: 1
+      },
+      {
+        name: "Roland JUNO-D",
+        sku: "SYN-ROL-001",
+        category: "Sintetizadores",
+        quantity: 2,
+        price: 999,
+        supplier: "Roland",
+        minStock: 1
+      },
+      {
+        name: "Novation Bass Station II",
+        sku: "SYN-NOV-001",
+        category: "Sintetizadores",
+        quantity: 3,
+        price: 499,
+        supplier: "Novation",
+        minStock: 1
+      },
+      {
+        name: "Stylophone Original",
+        sku: "SYN-DUB-001",
+        category: "Sintetizadores",
+        quantity: 5,
+        price: 29.99,
+        supplier: "Dübreq",
+        minStock: 2
+      },
+
+      // 11-14. CONTROLADORES DJ
+      {
+        name: "AlphaTheta DDJ-FLX4",
+        sku: "DJ-ALP-001",
+        category: "Controladores DJ",
+        quantity: 5,
+        price: 329,
+        supplier: "AlphaTheta",
+        minStock: 2
+      },
+      {
+        name: "Pioneer DJ DDJ-REV5",
+        sku: "DJ-PIO-001",
+        category: "Controladores DJ",
+        quantity: 2,
+        price: 1099,
+        supplier: "Pioneer DJ",
+        minStock: 1
+      },
+      {
+        name: "Pioneer DJ XDJ-RX3",
+        sku: "DJ-PIO-002",
+        category: "Controladores DJ",
+        quantity: 2,
+        price: 2099,
+        supplier: "Pioneer DJ",
+        minStock: 1
+      },
+      {
+        name: "Hercules DJControl Inpulse 500",
+        sku: "DJ-HER-001",
+        category: "Controladores DJ",
+        quantity: 4,
+        price: 299,
+        supplier: "Hercules",
+        minStock: 1
+      },
+
+      // 15-17. MEZCLADORES DJ
+      {
+        name: "Pioneer DJ DJM-A9",
+        sku: "MIX-PIO-001",
+        category: "Mezcladores DJ",
+        quantity: 1,
+        price: 2699,
+        supplier: "Pioneer DJ",
+        minStock: 1
+      },
+      {
+        name: "Allen & Heath Xone:96",
+        sku: "MIX-AH-001",
+        category: "Mezcladores DJ",
+        quantity: 2,
+        price: 2199,
+        supplier: "Allen & Heath",
+        minStock: 1
+      },
+      {
+        name: "Pioneer DJ DJM-750MK2",
+        sku: "MIX-PIO-002",
+        category: "Mezcladores DJ",
+        quantity: 2,
+        price: 1299,
+        supplier: "Pioneer DJ",
+        minStock: 1
+      },
+
+      // 18-21. INTERFACES DE AUDIO
+      {
+        name: "Focusrite Scarlett 2i2 4th Gen",
+        sku: "INT-FOC-001",
+        category: "Interfaces de audio",
+        quantity: 6,
+        price: 199,
+        supplier: "Focusrite",
+        minStock: 2
+      },
+      {
+        name: "Focusrite Scarlett 4i4 4th Gen",
+        sku: "INT-FOC-002",
+        category: "Interfaces de audio",
+        quantity: 3,
+        price: 299,
+        supplier: "Focusrite",
+        minStock: 1
+      },
+      {
+        name: "Universal Audio Volt 2",
+        sku: "INT-UA-001",
+        category: "Interfaces de audio",
+        quantity: 3,
+        price: 189,
+        supplier: "Universal Audio",
+        minStock: 1
+      },
+      {
+        name: "MOTU M4",
+        sku: "INT-MOT-001",
+        category: "Interfaces de audio",
+        quantity: 2,
+        price: 299,
+        supplier: "MOTU",
+        minStock: 1
+      },
+
+      // 22-24. MONITORES DE ESTUDIO
+      {
+        name: "Yamaha HS5",
+        sku: "MON-YAM-001",
+        category: "Monitores de estudio",
+        quantity: 6,
+        price: 199,
+        supplier: "Yamaha",
+        minStock: 2
+      },
+      {
+        name: "KRK Rokit 5 G5",
+        sku: "MON-KRK-001",
+        category: "Monitores de estudio",
+        quantity: 4,
+        price: 219,
+        supplier: "KRK",
+        minStock: 1
+      },
+      {
+        name: "ADAM Audio T5V",
+        sku: "MON-ADA-001",
+        category: "Monitores de estudio",
+        quantity: 4,
+        price: 199,
+        supplier: "ADAM Audio",
+        minStock: 1
+      },
+
+      // 25-27. AURICULARES DE ESTUDIO
+      {
+        name: "Audio-Technica ATH-M50x",
+        sku: "AUR-AT-001",
+        category: "Auriculares de estudio",
+        quantity: 5,
+        price: 149,
+        supplier: "Audio-Technica",
+        minStock: 2
+      },
+      {
+        name: "Beyerdynamic DT 770 PRO 80 Ohm",
+        sku: "AUR-BEY-001",
+        category: "Auriculares de estudio",
+        quantity: 4,
+        price: 149,
+        supplier: "Beyerdynamic",
+        minStock: 1
+      },
+      {
+        name: "Sennheiser HD 25",
+        sku: "AUR-SEN-001",
+        category: "Auriculares de estudio",
+        quantity: 4,
+        price: 149,
+        supplier: "Sennheiser",
+        minStock: 1
+      },
+
+      // 28-30. TECLADOS MIDI
+      {
+        name: "Arturia KeyLab Essential 49 mk3",
+        sku: "MID-ART-001",
+        category: "Teclados MIDI",
+        quantity: 3,
+        price: 219,
+        supplier: "Arturia",
+        minStock: 1
+      },
+      {
+        name: "Novation Launchkey 49 MK4",
+        sku: "MID-NOV-001",
+        category: "Teclados MIDI",
+        quantity: 3,
+        price: 289,
+        supplier: "Novation",
+        minStock: 1
+      },
+      {
+        name: "Native Instruments Komplete Kontrol A49",
+        sku: "MID-NI-001",
+        category: "Teclados MIDI",
+        quantity: 2,
+        price: 219,
+        supplier: "Native Instruments",
+        minStock: 1
+      },
+
+      // 31. TEENAGE ENGINEERING OP-1 FIELD
+      {
+        name: "Teenage Engineering OP-1 field",
+        sku: "SYN-TE-OP1F",
+        category: "Sintetizadores",
+        quantity: 1,
+        price: 1890,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 32-34. POCKET OPERATORS
+      {
+        name: "Teenage Engineering PO-12 rhythm",
+        sku: "PO-TE-0012",
+        category: "Cajas de ritmos y samplers",
+        quantity: 4,
+        price: 55,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+      {
+        name: "Teenage Engineering PO-14 sub",
+        sku: "PO-TE-0014",
+        category: "Sintetizadores",
+        quantity: 3,
+        price: 79,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+      {
+        name: "Teenage Engineering PO-20 arcade",
+        sku: "PO-TE-0020",
+        category: "Cajas de ritmos y samplers",
+        quantity: 3,
+        price: 93,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 35. EDICIÓN ESPECIAL RICK AND MORTY
+      {
+        name: "Teenage Engineering PO-137 Rick and Morty",
+        sku: "PO-TE-0137",
+        category: "Cajas de ritmos y samplers",
+        quantity: 3,
+        price: 99,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 36. SINTETIZADOR Y SECUENCIADOR OP-XY
+      {
+        name: "Teenage Engineering OP-XY",
+        sku: "SYN-TE-OPXY",
+        category: "Sintetizadores",
+        quantity: 1,
+        price: 2299,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 37. MEZCLADOR TX-6
+      {
+        name: "Teenage Engineering TX-6",
+        sku: "MIX-TE-TX6",
+        category: "Mezcladores DJ",
+        quantity: 1,
+        price: 1199,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 38. GRABADOR TP-7
+      {
+        name: "Teenage Engineering TP-7",
+        sku: "REC-TE-TP7",
+        category: "Grabación de audio",
+        quantity: 1,
+        price: 1499,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 39. MICRÓFONO CM-15
+      {
+        name: "Teenage Engineering CM-15",
+        sku: "MIC-TE-CM15",
+        category: "Micrófonos",
+        quantity: 1,
+        price: 1199,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      },
+
+      // 40. ESTACIÓN DE PRODUCCIÓN PORTÁTIL
+      {
+        name: "Teenage Engineering EP-133 K.O. II",
+        sku: "SAM-TE-EP133",
+        category: "Cajas de ritmos y samplers",
+        quantity: 3,
+        price: 349,
+        supplier: "Teenage Engineering",
+        minStock: 1
+      }
+    ];
+
+    const button = document.getElementById("load-button");
+    const status = document.getElementById("status");
+    const summary = document.getElementById("summary");
+    const results = document.getElementById("results");
+
+    function addResult(message) {
+      const item = document.createElement("li");
+      item.textContent = message;
+      results.appendChild(item);
+    }
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      results.replaceChildren();
+      summary.textContent = "";
+      status.textContent = "Consultando la API...";
+
+      let added = 0;
+      let skipped = 0;
+      let failed = 0;
+
+      try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+          throw new Error("Error consultando la API: HTTP " + response.status);
+        }
+
+        const existingProducts = await response.json();
+
+        if (!Array.isArray(existingProducts)) {
+          throw new Error("La API no ha devuelto una lista de productos.");
+        }
+
+        const existingSkus = new Set(
+          existingProducts.map(product => product.sku)
+        );
+
+        for (const product of products) {
+          if (existingSkus.has(product.sku)) {
+            skipped++;
+            addResult("Ya existía; no se modifica: " + product.name);
+            continue;
+          }
+
+          try {
+            const createResponse = await fetch(API_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(product)
+            });
+
+            if (!createResponse.ok) {
+              const errorText = await createResponse.text();
+              throw new Error(
+                "HTTP " + createResponse.status + ": " + errorText
+              );
+            }
+
+            added++;
+            existingSkus.add(product.sku);
+            addResult("Añadido: " + product.name);
+          } catch (error) {
+            failed++;
+            addResult("Error al añadir " + product.name + ": " + error.message);
+          }
+
+          status.textContent =
+            "Procesando catálogo... " +
+            (added + skipped + failed) + " de " + products.length;
+        }
+
+        status.textContent = "Proceso terminado.";
+        summary.textContent =
+          "Referencias del catálogo: " + products.length +
+          " | Añadidas: " + added +
+          " | Ya existentes: " + skipped +
+          " | Errores: " + failed;
+
+      } catch (error) {
+        status.textContent = "No se pudo cargar el catálogo.";
+        summary.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

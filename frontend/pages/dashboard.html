@@ -1,0 +1,192 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Loopstock</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  
+</head>
+
+<body>
+  <div class="app-layout">
+
+
+<!-- MENÚ LATERAL -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- Botón para cerrar el menú en móvil -->
+  <button
+    type="button"
+    class="menu-close"
+    id="menu-close"
+    aria-label="Cerrar menú"
+  >
+    ✕
+  </button>
+
+  <a href="dashboard.html" class="brand">
+    <span class="brand-name">▦ LOOPSTOCK</span>
+  </a>
+
+  <p class="nav-label">Menú principal</p>
+
+  <nav>
+    <a href="dashboard.html" class="nav-link active">
+      <span class="nav-icon">▦</span>
+      Dashboard
+    </a>
+
+    <a href="products.html" class="nav-link">
+      <span class="nav-icon">▣</span>
+      Productos
+    </a>
+
+    <a href="suppliers.html" class="nav-link">
+      <span class="nav-icon">▤</span>
+      Proveedores
+    </a>
+
+    <a href="movements.html" class="nav-link">
+      <span class="nav-icon">⇄</span>
+      Movimientos
+    </a>
+
+    <a href="imports.html" class="nav-link">
+      <span class="nav-icon">⇧</span>
+      Importaciones
+    </a>
+  </nav>
+
+  <p class="nav-label">Sistema</p>
+
+  <a href="login.html" class="nav-link">
+    <span class="nav-icon">↪</span>
+    Cerrar sesión
+  </a>
+
+</aside>
+
+
+<!-- CONTENIDO PRINCIPAL -->
+<main class="main-content">
+
+  <!-- BARRA SUPERIOR -->
+  <header class="topbar">
+
+    <div class="topbar-left">
+
+      <button
+        type="button"
+        class="menu-toggle"
+        id="menu-toggle"
+        aria-label="Abrir menú"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >
+        ☰
+      </button>
+
+      <strong>Panel de control</strong>
+
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-secondary"
+      id="theme-toggle"
+      aria-label="Cambiar a modo oscuro"
+    >
+      <span id="theme-icon" aria-hidden="true">🌙</span>
+      <span id="theme-label">Modo oscuro</span>
+    </button>
+
+  </header>
+
+      <section class="page-content">
+
+        <!-- CABECERA -->
+        <div class="page-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="page-description">
+              Bienvenida a tu panel de control de inventario.
+            </p>
+          </div>
+
+          <a href="products.html" class="btn btn-primary">
+            + Ver productos
+          </a>
+        </div>
+
+        <!-- INDICADORES -->
+        <div class="stats-grid">
+
+          <article class="stat-card">
+            <p class="stat-label">Productos registrados</p>
+            <p class="stat-value" id="total-products">—</p>
+            <p class="stat-note">Total de referencias</p>
+          </article>
+
+          <article class="stat-card">
+            <p class="stat-label">Unidades en stock</p>
+            <p class="stat-value" id="total-units">—</p>
+            <p class="stat-note">Existencias actuales</p>
+          </article>
+
+          <article class="stat-card">
+            <p class="stat-label">Stock bajo</p>
+            <p class="stat-value" id="low-stock">—</p>
+            <p class="stat-note">Productos por revisar</p>
+          </article>
+
+          <article class="stat-card">
+            <p class="stat-label">Valor del inventario</p>
+            <p class="stat-value" id="inventory-value">—</p>
+            <p class="stat-note">Valor estimado en euros</p>
+          </article>
+
+        </div>
+
+        <!-- ACTIVIDAD -->
+        <section class="card">
+          <h2>Resumen del inventario</h2>
+          <p class="page-description">
+            Consulta tus productos, existencias y alertas de inventario.
+         </p>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>SKU</th>
+                  <th>Unidades</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+
+
+            <tbody id="dashboard-products">
+                <tr>
+                    <td colspan="4">
+                    Cargando productos...
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/menu.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/dashboard.js"></script>
+
+</body>
+</html>

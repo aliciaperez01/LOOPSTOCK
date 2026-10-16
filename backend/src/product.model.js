@@ -9,6 +9,7 @@ async function getCollection() {
   return db.collection(COLLECTION_NAME);
 }
 
+// Crear un producto
 async function createProduct(product) {
   const collection = await getCollection();
 
@@ -28,29 +29,51 @@ async function createProduct(product) {
     throw new Error("El nombre y el SKU son obligatorios");
   }
 
+  // Impedir SKU duplicados
+  const existingProduct = await collection.findOne({
+    sku: newProduct.sku
+  });
+
+  if (existingProduct) {
+    throw new Error("Ya existe un producto con ese SKU");
+  }
+
   const result = await collection.insertOne(newProduct);
 
-  return { ...newProduct, _id: result.insertedId };
+  return {
+    ...newProduct,
+    _id: result.insertedId
+  };
 }
 
+// Obtener todos los productos
 async function getProducts() {
   const collection = await getCollection();
+
   return collection.find({}).sort({ name: 1 }).toArray();
 }
 
+// Obtener un producto por ID
 async function getProductById(id) {
   if (!ObjectId.isValid(id)) {
     throw new Error("ID de producto no válido");
   }
 
   const collection = await getCollection();
-  return collection.findOne({ _id: new ObjectId(id) });
+
+  return collection.findOne({
+    _id: new ObjectId(id)
+  });
 }
 
+// Actualizar un producto
 async function updateProduct(id, changes) {
   if (!ObjectId.isValid(id)) {
     throw new Error("ID de producto no válido");
   }
+
+  const collection = await getCollection();
+  const productId = new ObjectId(id);
 
   const allowedFields = [
     "name",
@@ -62,12 +85,11 @@ async function updateProduct(id, changes) {
     "minStock"
   ];
 
+  const numericFields = ["quantity", "price", "minStock"];
   const updates = {};
 
   for (const field of allowedFields) {
     if (changes[field] !== undefined) {
-      const numericFields = ["quantity", "price", "minStock"];
-
       updates[field] = numericFields.includes(field)
         ? Number(changes[field])
         : changes[field];
@@ -78,12 +100,22 @@ async function updateProduct(id, changes) {
     throw new Error("No hay campos válidos para actualizar");
   }
 
+  // Impedir que se asigne el SKU de otro producto
+  if (updates.sku !== undefined) {
+    const existingProduct = await collection.findOne({
+      sku: updates.sku,
+      _id: { $ne: productId }
+    });
+
+    if (existingProduct) {
+      throw new Error("Ya existe un producto con ese SKU");
+    }
+  }
+
   updates.updatedAt = new Date();
 
-  const collection = await getCollection();
-
   const result = await collection.updateOne(
-    { _id: new ObjectId(id) },
+    { _id: productId },
     { $set: updates }
   );
 
@@ -94,6 +126,7 @@ async function updateProduct(id, changes) {
   return getProductById(id);
 }
 
+// Eliminar un producto
 async function deleteProduct(id) {
   if (!ObjectId.isValid(id)) {
     throw new Error("ID de producto no válido");

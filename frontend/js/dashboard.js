@@ -1,5 +1,5 @@
 
-const DASHBOARD_API_URL = "http://localhost:3000/api/products";
+const DASHBOARD_API_URL = "http://localhost:3001/api/products";
 
 async function loadDashboard() {
   const totalProducts = document.getElementById("total-products");

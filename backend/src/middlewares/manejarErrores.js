@@ -11,6 +11,16 @@ function manejarErrores(error, req, res, next) {
     });
   }
 
+    if (res.headersSent) {
+    return next(error);
+  }
+
+  if (error.statusCode) {
+    return res.status(error.statusCode).json({
+      error: error.message
+    });
+  }
+
   if (error.code === 11000) {
     return res.status(409).json({
       error: "Ya existe un producto con ese SKU"

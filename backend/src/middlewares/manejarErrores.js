@@ -6,7 +6,7 @@ function manejarErrores(error, req, res, next) {
     return next(error);
   }
 
-  // SKU duplicado
+
   if (error.code === 11000) {
     return res.status(409).json({
       error: "Ya existe un producto con ese SKU",
@@ -14,7 +14,7 @@ function manejarErrores(error, req, res, next) {
     });
   }
 
-  // Validaciones del modelo de Mongoose
+
   if (error.name === "ValidationError") {
     const errores = Object.values(error.errors).map((detalle) => ({
       campo: detalle.path,
@@ -27,7 +27,7 @@ function manejarErrores(error, req, res, next) {
     });
   }
 
-  // ID con formato incorrecto
+  
   if (error.name === "CastError") {
     return res.status(400).json({
       error: "El valor proporcionado no es válido",
@@ -35,10 +35,17 @@ function manejarErrores(error, req, res, next) {
     });
   }
 
-  // Errores de JSON mal formado
+  
   if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
     return res.status(400).json({
       error: "El cuerpo de la petición contiene JSON no válido"
+    });
+  }
+
+    
+  if (error.status === 400) {
+    return res.status(400).json({
+      error: error.message
     });
   }
 

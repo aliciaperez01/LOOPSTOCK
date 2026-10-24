@@ -46,10 +46,10 @@ const productSchema = new mongoose.Schema(
       default: 0
     },
     quantity: {
-      type: Number,
-      required: true,
-      min: [0, "El stock no puede ser negativo"],
-      default: 0
+    type: Number,
+    required: [true, "La cantidad es obligatoria"],
+    min: [0, "El stock no puede ser negativo"],
+    default: 0
     },
     minStock: {
         type: Number,

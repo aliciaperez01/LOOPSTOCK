@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Proveedores | Loopstock</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/gestion.css">
+
+  <!-- Sesión: si no hay token válido, redirige al login antes de pintar la página -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>protegerPagina();</script>
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar" id="sidebar">
+
+      <button
+        type="button"
+        class="menu-close"
+        id="menu-close"
+        aria-label="Cerrar menú"
+      >
+        ✕
+      </button>
+
+      <a href="dashboard.html" class="brand">
+        <span class="brand-name">▦ LOOPSTOCK</span>
+      </a>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          Dashboard
+        </a>
+
+        <a href="products.html" class="nav-link">
+          Productos
+        </a>
+
+        <a href="suppliers.html" class="nav-link active" aria-current="page">
+          Proveedores
+        </a>
+
+        <a href="movements.html" class="nav-link">
+          Movimientos
+        </a>
+
+        <a href="imports.html" class="nav-link" data-role="admin">
+          Importaciones
+        </a>
+      </nav>
+
+      <div class="sidebar-session">
+        <span class="sidebar-user" data-user-name></span>
+        <a href="login.html" class="nav-link" data-logout>↪ Cerrar sesión</a>
+      </div>
+    </aside>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- BARRA SUPERIOR -->
+      <header class="topbar">
+
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div>
+            <h1>Proveedores</h1>
+            <p>Gestiona los proveedores de la tienda.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="theme-toggle"
+          aria-label="Cambiar a modo oscuro"
+        >
+          <span id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+
+      </header>
+
+      <!-- CONTENIDO DE LA PÁGINA -->
+      <div class="page-content">
+
+        <!-- CABECERA -->
+        <section class="page-header">
+          <div>
+            <h2>Proveedores</h2>
+            <p>Empresas que suministran el material de la tienda.</p>
+          </div>
+
+          <button
+            type="button"
+            id="add-supplier-button"
+            class="btn btn-primary"
+            data-role="admin"
+          >
+            + Añadir proveedor
+          </button>
+        </section>
+
+        <!-- LISTADO -->
+        <section class="card gestion-card">
+
+          <div class="section-header">
+            <div>
+              <h2>Listado de proveedores</h2>
+              <p id="supplier-count" class="gestion-count">Cargando proveedores...</p>
+            </div>
+
+            <button type="button" id="refresh-button" class="btn btn-secondary">
+              Actualizar
+            </button>
+          </div>
+
+          <!-- BÚSQUEDA Y FILTROS -->
+          <form id="supplier-filters" class="gestion-filters" role="search">
+            <input
+              type="search"
+              id="supplier-search"
+              class="gestion-input gestion-search"
+              placeholder="Buscar por nombre o CIF..."
+              aria-label="Buscar proveedores"
+            >
+
+            <select id="active-filter" class="gestion-input" aria-label="Filtrar por estado">
+              <option value="true">Solo activos</option>
+              <option value="false">Solo inactivos</option>
+              <option value="">Todos</option>
+            </select>
+          </form>
+
+          <!-- MENSAJES -->
+          <p id="message" class="gestion-message" role="status" aria-live="polite"></p>
+
+          <!-- TABLA -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Proveedor</th>
+                  <th>CIF/NIF</th>
+                  <th>Contacto</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Estado</th>
+                  <th data-role="admin">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="suppliers-table">
+                <tr><td colspan="7">Cargando proveedores...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- VENTANA MODAL: CREAR / EDITAR PROVEEDOR -->
+  <div class="product-modal-overlay" id="supplier-modal" hidden>
+    <section
+      class="product-modal gestion-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="supplier-modal-title"
+    >
+      <header class="product-modal-header">
+        <h2 id="supplier-modal-title">Añadir proveedor</h2>
+        <button
+          type="button"
+          class="product-modal-close"
+          id="close-supplier-modal"
+          aria-label="Cerrar ventana"
+        >
+          &times;
+        </button>
+      </header>
+
+      <form id="supplier-form" class="gestion-modal-body" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input type="text" id="name" name="name" required minlength="2" maxlength="80">
+          </div>
+
+          <div class="form-group">
+            <label for="taxId">CIF/NIF</label>
+            <input type="text" id="taxId" name="taxId" maxlength="12" placeholder="B12345678">
+          </div>
+
+          <div class="form-group">
+            <label for="contactName">Persona de contacto</label>
+            <input type="text" id="contactName" name="contactName" maxlength="80">
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email">
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Teléfono</label>
+            <input type="tel" id="phone" name="phone" maxlength="20">
+          </div>
+
+          <div class="form-group">
+            <label for="website">Web</label>
+            <input type="url" id="website" name="website" placeholder="https://">
+          </div>
+        </div>
+
+        <div class="form-group gestion-full">
+          <label for="notes">Notas</label>
+          <textarea id="notes" name="notes" rows="3" maxlength="500"></textarea>
+        </div>
+
+        <p id="form-message" class="gestion-message" role="alert"></p>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-supplier">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="save-supplier">Guardar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/theme.js"></script>
+  <script src="../js/menu.js"></script>
+  <script src="../js/suppliers.js"></script>
+</body>
+</html>

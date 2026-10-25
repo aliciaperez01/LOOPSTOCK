@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Importaciones | Loopstock</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/gestion.css">
+
+  <!-- Sesión: si no hay token válido, redirige al login antes de pintar la página -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>protegerPagina({ roles: ["admin"] });</script>
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar" id="sidebar">
+
+      <button
+        type="button"
+        class="menu-close"
+        id="menu-close"
+        aria-label="Cerrar menú"
+      >
+        ✕
+      </button>
+
+      <a href="dashboard.html" class="brand">
+        <span class="brand-name">▦ LOOPSTOCK</span>
+      </a>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          Dashboard
+        </a>
+
+        <a href="products.html" class="nav-link">
+          Productos
+        </a>
+
+        <a href="suppliers.html" class="nav-link">
+          Proveedores
+        </a>
+
+        <a href="movements.html" class="nav-link">
+          Movimientos
+        </a>
+
+        <a href="imports.html" class="nav-link active" aria-current="page">
+          Importaciones
+        </a>
+      </nav>
+
+      <div class="sidebar-session">
+        <span class="sidebar-user" data-user-name></span>
+        <a href="login.html" class="nav-link" data-logout>↪ Cerrar sesión</a>
+      </div>
+    </aside>
+
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- BARRA SUPERIOR -->
+      <header class="topbar">
+
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div>
+            <h1>Importaciones</h1>
+            <p>Importa productos desde CSV y revisa el historial.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="theme-toggle"
+          aria-label="Cambiar a modo oscuro"
+        >
+          <span id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+
+      </header>
+
+      <!-- CONTENIDO DE LA PÁGINA -->
+      <div class="page-content">
+
+        <!-- CABECERA -->
+        <section class="page-header">
+          <div>
+            <h2>Importar productos</h2>
+            <p>Carga productos de forma masiva desde un archivo CSV.</p>
+          </div>
+        </section>
+
+        <!-- SUBIDA DEL CSV -->
+        <section class="card gestion-card">
+          <h2>Subir archivo CSV</h2>
+
+          <p class="gestion-help">
+            Columnas obligatorias: <code>sku</code>, <code>name</code>, <code>category</code>,
+            <code>quantity</code>, <code>price</code>.
+            Opcionales: <code>brand</code>, <code>model</code>, <code>description</code>,
+            <code>cost</code>, <code>minStock</code>, <code>supplier</code>, <code>status</code>.
+            Separador <code>,</code> o <code>;</code> · máximo 2 MB.
+          </p>
+
+          <form id="import-form" class="gestion-upload" novalidate>
+            <div class="form-group">
+              <label for="csv-file">Archivo CSV</label>
+              <input type="file" id="csv-file" name="file" accept=".csv,text/csv" required>
+            </div>
+
+            <button type="submit" id="import-button" class="btn btn-primary">
+              Importar
+            </button>
+          </form>
+
+          <p id="message" class="gestion-message" role="status" aria-live="polite"></p>
+        </section>
+
+        <!-- RESULTADO / DETALLE -->
+        <section class="card gestion-card" id="import-result" hidden>
+          <div class="section-header">
+            <div>
+              <h2 id="result-title">Resultado de la importación</h2>
+              <p id="result-subtitle" class="gestion-count"></p>
+            </div>
+            <span id="result-status" class="badge"></span>
+          </div>
+
+          <div class="gestion-summary">
+            <article class="gestion-summary-item">
+              <span>Filas en el archivo</span>
+              <strong id="result-total">0</strong>
+            </article>
+            <article class="gestion-summary-item">
+              <span>Insertadas</span>
+              <strong id="result-inserted">0</strong>
+            </article>
+            <article class="gestion-summary-item">
+              <span>Con errores</span>
+              <strong id="result-errors">0</strong>
+            </article>
+          </div>
+
+          <div class="table-container" id="errors-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fila</th>
+                  <th>SKU</th>
+                  <th>Motivo</th>
+                </tr>
+              </thead>
+              <tbody id="errors-table"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- HISTORIAL -->
+        <section class="card gestion-card">
+          <div class="section-header">
+            <div>
+              <h2>Historial de importaciones</h2>
+              <p id="history-count" class="gestion-count">Cargando historial...</p>
+            </div>
+            <button type="button" id="refresh-button" class="btn btn-secondary">
+              Actualizar
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Archivo</th>
+                  <th>Usuario</th>
+                  <th>Estado</th>
+                  <th>Insertadas</th>
+                  <th>Errores</th>
+                  <th>Detalle</th>
+                </tr>
+              </thead>
+              <tbody id="history-table">
+                <tr><td colspan="7">Cargando historial...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/theme.js"></script>
+  <script src="../js/menu.js"></script>
+  <script src="../js/imports.js"></script>
+</body>
+</html>

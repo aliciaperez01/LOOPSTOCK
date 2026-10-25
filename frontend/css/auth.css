@@ -1,0 +1,74 @@
+/* =========================================
+   LOOPSTOCK - PÁGINA DE LOGIN
+   MOBILE FIRST
+   ========================================= */
+
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 24px;
+}
+
+.auth-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-brand {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.auth-header h1 {
+  font-size: 24px;
+}
+
+.auth-header p {
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-submit {
+  width: 100%;
+}
+
+.auth-submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.auth-message {
+  min-height: 1.5em;
+  margin: 0;
+  font-weight: 600;
+}
+
+.auth-message[data-tipo="error"] {
+  color: var(--danger);
+}
+
+.auth-message[data-tipo="aviso"] {
+  color: var(--warning);
+}
+
+@media (min-width: 768px) {
+  .auth-card {
+    padding: 36px 32px;
+  }
+}

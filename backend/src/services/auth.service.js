@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const AppError = require("../utils/appError.js");
+const AppError = require("../utils/AppError");
 
 function signToken(user) {
   return jwt.sign(

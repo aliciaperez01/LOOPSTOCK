@@ -1,11 +1,10 @@
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
 const { connectDB } = require("./config/db");
-const productsRoutes = require("./routes/products.routes");
 const authRoutes = require("./routes/auth.routes");
+const productsRoutes = require("./routes/products.routes");
 
 const logger = require("./middlewares/logger");
 const noEncontrada = require("./middlewares/noEncontrada");
@@ -17,7 +16,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(logger);
-app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -25,6 +23,7 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
 
 // Las rutas inexistentes deben gestionarse antes del middleware de errores.

@@ -1,19 +1,21 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
+const { connectDB } = require("../config/db");
 const User = require("../models/User");
 
 async function main() {
-  const { MONGODB_URI, ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
+  const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
 
-  // Bloque 1: validar configuración
-  if (!MONGODB_URI || !ADMIN_EMAIL || !ADMIN_PASSWORD) {
-    throw new Error("Faltan MONGODB_URI, ADMIN_EMAIL o ADMIN_PASSWORD en .env");
+  // Bloque 1: validar configuración (MONGODB_URI la valida connectDB)
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+    throw new Error("Faltan ADMIN_EMAIL o ADMIN_PASSWORD en .env");
   }
   if (ADMIN_PASSWORD.length < 8) {
     throw new Error("ADMIN_PASSWORD debe tener al menos 8 caracteres");
   }
 
-  await mongoose.connect(MONGODB_URI);
+  // Misma conexión que el servidor (dbName: "loopstock")
+  await connectDB();
 
   // Bloque 2: idempotencia
   const existe = await User.findOne({ email: ADMIN_EMAIL.toLowerCase() });

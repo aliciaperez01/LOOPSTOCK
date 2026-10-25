@@ -7,8 +7,12 @@ async function login(req, res) {
   res.status(200).json({
     message: "Login correcto",
     token,
-    user
+    user,
   });
 }
 
-module.exports = { login };
+function me(req, res) {
+  res.status(200).json({ user: req.user });
+}
+
+module.exports = { login, me };

@@ -5,6 +5,7 @@ require("dotenv").config();
 const { connectDB } = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const productsRoutes = require("./routes/products.routes");
+const suppliersRoutes = require("./routes/suppliers.routes");
 
 const logger = require("./middlewares/logger");
 const noEncontrada = require("./middlewares/noEncontrada");
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/suppliers", suppliersRoutes);
 
 // Las rutas inexistentes deben gestionarse antes del middleware de errores.
 app.use(noEncontrada);

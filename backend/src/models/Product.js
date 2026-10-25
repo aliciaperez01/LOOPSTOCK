@@ -14,16 +14,25 @@ const productSchema = new mongoose.Schema(
       trim: true,
       uppercase: true
     },
+    brand: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+    model: {
+      type: String,
+      trim: true,
+      default: ""
+    },
     category: {
       type: String,
       required: [true, "La categoría es obligatoria"],
       trim: true
     },
-    quantity: {
-      type: Number,
-      required: true,
-      min: [0, "El stock no puede ser negativo"],
-      default: 0
+    description: {
+      type: String,
+      trim: true,
+      default: ""
     },
     price: {
       type: Number,
@@ -31,15 +40,35 @@ const productSchema = new mongoose.Schema(
       min: [0, "El precio no puede ser negativo"],
       default: 0
     },
+    cost: {
+      type: Number,
+      min: [0, "El coste no puede ser negativo"],
+      default: 0
+    },
+    quantity: {
+    type: Number,
+    required: [true, "La cantidad es obligatoria"],
+    min: [0, "El stock no puede ser negativo"],
+    default: 0
+    },
+    minStock: {
+        type: Number,
+        required: [true, "El stock mínimo es obligatorio"],
+        min: [1, "El stock mínimo debe ser al menos 1"],
+        default: 1
+    },
     supplier: {
       type: String,
       trim: true,
       default: ""
     },
-    minStock: {
-      type: Number,
-      min: [0, "El stock mínimo no puede ser negativo"],
-      default: 0
+    status: {
+      type: String,
+      enum: {
+        values: ["active", "inactive"],
+        message: "El estado debe ser active o inactive"
+      },
+      default: "active"
     }
   },
   {

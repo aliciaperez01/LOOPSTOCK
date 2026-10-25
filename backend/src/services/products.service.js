@@ -37,6 +37,22 @@ async function buscarPorId(id) {
 
 // CREAR PRODUCTO
 async function crear(datos) {
+  const cantidad = datos.quantity;
+
+  if (
+    cantidad === undefined ||
+    cantidad === null ||
+    cantidad === "" ||
+    !Number.isFinite(Number(cantidad)) ||
+    Number(cantidad) < 1
+  ) {
+    const error = new Error(
+      "Un producto nuevo debe tener al menos 1 unidad en stock"
+    );
+    error.status = 400;
+    throw error;
+  }
+
   return Product.create(datos);
 }
 

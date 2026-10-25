@@ -44,18 +44,13 @@ async function obtener(req, res, next) {
   }
 }
 
-// CREAR PRODUCTO
+
+ // CREAR PRODUCTO
 async function crear(req, res, next) {
   try {
     const producto = await productsService.crear(req.body);
     res.status(201).json(producto);
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Ya existe un producto con ese SKU"
-      });
-    }
-
     next(error);
   }
 }
@@ -74,15 +69,10 @@ async function actualizar(req, res, next) {
 
     res.status(200).json(producto);
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: "Ya existe un producto con ese SKU"
-      });
-    }
-
     next(error);
   }
 }
+
 
 // ELIMINAR PRODUCTO
 async function eliminar(req, res, next) {

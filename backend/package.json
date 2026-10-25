@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "start": "node src/server.js",
-  "dev": "node --watch src/server.js",
-  "seed:admin": "node src/scripts/seed-admin.js"
-},
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed:admin": "node src/scripts/seed-admin.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -15,10 +15,12 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "csv-parse": "^7.0.3",
     "dotenv": "^18.0.8",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.7.0",
-    "mongoose": "^9.11.2"
+    "mongoose": "^9.11.2",
+    "multer": "^2.5.0"
   }
 }

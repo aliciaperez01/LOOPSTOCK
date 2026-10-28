@@ -1,0 +1,529 @@
+
+/* =========================================
+   LOOPSTOCK - DISEÑO RESPONSIVE
+   MOBILE FIRST
+   ========================================= */
+
+
+/* =========================================
+   1. MÓVILES
+   Hasta 600px
+   ========================================= */
+
+@media (max-width: 600px) {
+
+  /* Barra superior */
+
+  .topbar {
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  /* Botón del menú */
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .menu-toggle:hover {
+    background: var(--surface-hover);
+  }
+
+  /* Menú lateral */
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: min(290px, 85vw);
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* Selector de tema */
+
+  #theme-toggle {
+    flex-shrink: 0;
+  }
+
+  /* Contenido */
+
+  .page-content {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  /* Estadísticas */
+
+  .product-stats,
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .product-stat,
+  .stats-grid .stat-card {
+    min-width: 0;
+    padding: 12px;
+  }
+
+  .product-stat-value,
+  .stats-grid .stat-value {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    overflow-wrap: anywhere;
+  }
+
+  /* Filtros */
+
+  .product-filters {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .product-filters input,
+  .product-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .product-filters .btn,
+  #clear-filters {
+    width: 100%;
+  }
+
+  /* Acciones de productos */
+
+  .product-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Tabla de productos */
+
+  .product-list-card {
+    min-width: 0;
+  }
+
+  .product-list-card .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-list-card table {
+    min-width: 850px;
+  }
+
+  /* Modal */
+
+  .product-modal-overlay {
+    padding: 12px;
+  }
+
+  .product-modal {
+    width: 100%;
+    height: min(850px, 96vh);
+    height: min(850px, 96dvh);
+    max-height: 96vh;
+    max-height: 96dvh;
+    border-radius: 12px;
+  }
+
+  .product-modal-header {
+    padding: 10px 12px;
+  }
+
+  /* Formulario dentro del modal */
+
+  body.modal-form .page-content {
+    padding: 10px;
+  }
+
+  body.modal-form .page-content > .card {
+    padding: 12px;
+  }
+
+  body.modal-form .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+
+/* =========================================
+   2. TABLETS
+   Desde 601px hasta 1023px
+   ========================================= */
+
+@media (min-width: 601px) and (max-width: 1023px) {
+
+  /* Barra superior */
+
+  .topbar {
+    gap: 12px;
+    padding: 18px 24px;
+    justify-content: space-between;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  /* Botón del menú */
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .menu-toggle:hover {
+    background: var(--surface-hover);
+  }
+
+  /* Menú lateral */
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    width: min(290px, 85vw);
+    height: 100vh;
+    height: 100dvh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition:
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  #theme-toggle {
+    flex-shrink: 0;
+  }
+
+  /* Contenido */
+
+  .page-content {
+    padding: 24px;
+  }
+
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* Estadísticas */
+
+  .product-stats,
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .product-stat,
+  .stats-grid .stat-card {
+    min-width: 0;
+    padding: 18px;
+  }
+
+  .product-stat-value,
+  .stats-grid .stat-value {
+    font-size: clamp(1.25rem, 2.5vw, 1.8rem);
+    overflow-wrap: anywhere;
+  }
+
+  /* Filtros */
+
+  .product-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .product-filters input,
+  .product-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Formularios */
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Acciones de productos */
+
+  .product-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Tabla de productos */
+
+  .product-list-card {
+    min-width: 0;
+  }
+
+  .product-list-card .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-list-card table {
+    min-width: 850px;
+  }
+
+  /* Modal */
+
+  .product-modal-overlay {
+    padding: 16px;
+  }
+
+  .product-modal {
+    width: min(620px, 100%);
+  }
+}
+
+
+/* =========================================
+   3. ESCRITORIO
+   Desde 1024px
+   ========================================= */
+
+@media (min-width: 1024px) {
+
+  /* Estructura principal */
+
+  .app-layout {
+    display: block;
+    min-height: 100vh;
+  }
+
+  /* Menú lateral */
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 1000;
+    width: var(--sidebar-width);
+    height: 100vh;
+    overflow-y: auto;
+    padding: 24px 18px;
+    transform: translateX(0);
+    visibility: visible;
+    transition:
+      transform 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .brand {
+    margin-bottom: 36px;
+  }
+
+  /* Menú plegado */
+
+  body.sidebar-collapsed .sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+
+  body.sidebar-collapsed .main-content {
+    margin-left: 0;
+  }
+
+  /* Contenido principal */
+
+  .main-content {
+    min-width: 0;
+    min-height: 100vh;
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.25s ease;
+  }
+
+  /* Barra superior */
+
+  .topbar {
+    min-height: 72px;
+    gap: 12px;
+    padding: 18px 32px;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* Botón del menú */
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .menu-close {
+    display: none;
+  }
+
+  #theme-toggle {
+    flex-shrink: 0;
+  }
+
+  /* Contenido */
+
+  .page-content {
+    padding: 30px;
+  }
+
+  /* Estadísticas */
+
+  .product-stats,
+  .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .product-stat,
+  .stats-grid .stat-card {
+    min-width: 0;
+    padding: 20px;
+  }
+
+  .product-stat-label,
+  .stats-grid .stat-label {
+    min-height: 38px;
+    font-size: 0.85rem;
+  }
+
+  .product-stat-value,
+  .stats-grid .stat-value {
+    font-size: clamp(1.25rem, 1.7vw, 1.9rem);
+    overflow-wrap: anywhere;
+  }
+
+  /* Filtros */
+
+  .product-filters {
+    grid-template-columns:
+      minmax(220px, 1.6fr)
+      repeat(2, minmax(140px, 1fr));
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .product-filters input,
+  .product-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .product-filters .btn,
+  #clear-filters {
+    width: auto;
+  }
+
+  /* Formularios */
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Acciones de productos */
+
+  .product-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* Tabla de productos */
+
+  .product-list-card {
+    min-width: 0;
+  }
+
+  .product-list-card .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .product-list-card table {
+    min-width: 850px;
+  }
+
+  /* Modal */
+
+  .product-modal-overlay {
+    padding: 16px;
+  }
+
+  .product-modal {
+    width: min(620px, 100%);
+  }
+}
+

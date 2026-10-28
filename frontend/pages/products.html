@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Productos | Loopstock</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- MENÚ LATERAL -->
+    <aside class="sidebar" id="sidebar">
+
+      <button
+        type="button"
+        class="menu-close"
+        id="menu-close"
+        aria-label="Cerrar menú"
+      >
+        ✕
+      </button>
+
+      <a href="dashboard.html" class="brand">
+        <span class="brand-name">▦ LOOPSTOCK</span>
+      </a>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">
+          Dashboard
+        </a>
+
+        <a href="products.html" class="nav-link active">
+          Productos
+        </a>
+
+        <a href="suppliers.html" class="nav-link">
+          Proveedores
+        </a>
+
+        <a href="movements.html" class="nav-link">
+          Movimientos
+        </a>
+
+        <a href="imports.html" class="nav-link">
+          Importaciones
+        </a>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- BARRA SUPERIOR -->
+      <header class="topbar">
+
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div>
+            <h1>Productos</h1>
+            <p>Consulta y gestiona tu catálogo de inventario.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="theme-toggle"
+          aria-label="Cambiar a modo oscuro"
+        >
+          <span id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+
+      </header>
+
+      <!-- CONTENIDO DE LA PÁGINA -->
+      <div class="page-content">
+
+        <!-- CABECERA DE PRODUCTOS -->
+        <section class="page-header">
+          <div>
+            <h2>Catálogo de productos</h2>
+            <p>Administra las referencias de tu inventario.</p>
+          </div>
+
+          <button
+            type="button"
+            id="add-product-button"
+            class="btn btn-primary"
+          >
+            + Añadir producto
+          </button>
+        </section>
+
+        <!-- ESTADÍSTICAS -->
+        <section class="product-stats">
+
+          <article class="card product-stat">
+            <span class="product-stat-label">Referencias</span>
+            <strong id="stat-products" class="product-stat-value">—</strong>
+            <span class="product-stat-note">Productos registrados</span>
+          </article>
+
+          <article class="card product-stat">
+            <span class="product-stat-label">Unidades en stock</span>
+            <strong id="stat-units" class="product-stat-value">—</strong>
+            <span class="product-stat-note">Unidades disponibles</span>
+          </article>
+
+          <article class="card product-stat">
+            <span class="product-stat-label">Valor del inventario</span>
+            <strong id="stat-value" class="product-stat-value">—</strong>
+            <span class="product-stat-note">Según precio y cantidad</span>
+          </article>
+
+          <article class="card product-stat">
+            <span class="product-stat-label">Stock bajo o agotado</span>
+            <strong id="stat-low-stock" class="product-stat-value">—</strong>
+            <span class="product-stat-note">Referencias que requieren atención</span>
+          </article>
+
+        </section>
+
+        <!-- LISTADO DE PRODUCTOS -->
+        <section class="card product-list-card">
+
+          <div class="section-header">
+            <div>
+              <h2>Catálogo de productos</h2>
+              <p id="product-count">Cargando productos...</p>
+            </div>
+
+            <button
+              type="button"
+              id="refresh-button"
+              class="btn btn-primary"
+            >
+              Actualizar
+            </button>
+          </div>
+
+          <!-- BÚSQUEDA Y FILTROS -->
+          <div class="product-filters">
+
+            <input
+              type="search"
+              id="product-search"
+              placeholder="Buscar por nombre, SKU, categoría o proveedor..."
+              aria-label="Buscar productos"
+            >
+
+            <select
+              id="category-filter"
+              aria-label="Filtrar por categoría"
+            >
+              <option value="">Todas las categorías</option>
+            </select>
+
+            <select
+              id="stock-filter"
+              aria-label="Filtrar por estado del stock"
+            >
+              <option value="">Todos los estados</option>
+              <option value="available">Disponible</option>
+              <option value="low">Stock bajo</option>
+              <option value="out">Agotado</option>
+            </select>
+
+            <button
+              type="button"
+              id="clear-filters"
+              class="btn btn-secondary"
+            >
+              Limpiar filtros
+            </button>
+
+          </div>
+
+          <!-- MENSAJES -->
+          <p
+            id="message"
+            class="product-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <!-- TABLA -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>SKU</th>
+                  <th>Categoría</th>
+                  <th>Unidades</th>
+                  <th>Precio</th>
+                  <th>Proveedor</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody id="products-table">
+                <tr>
+                  <td colspan="8">Cargando productos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- VENTANA MODAL: AÑADIR PRODUCTO -->
+  <div
+    class="product-modal-overlay"
+    id="product-modal"
+    hidden
+  >
+    <section
+      class="product-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="product-modal-title"
+    >
+
+      <!-- CABECERA DEL MODAL -->
+      <header class="product-modal-header">
+        <h2 id="product-modal-title">Añadir producto</h2>
+
+        <button
+          type="button"
+          class="product-modal-close"
+          id="close-product-modal"
+          aria-label="Cerrar ventana"
+        >
+          &times;
+        </button>
+      </header>
+
+      <!-- FORMULARIO EXISTENTE -->
+      <iframe
+        id="product-modal-frame"
+        title="Formulario para añadir producto"
+        src="about:blank"
+      ></iframe>
+
+    </section>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/theme.js"></script>
+  <script src="../js/menu.js"></script>
+  <script src="../js/products.js"></script>
+</body>
+</html>

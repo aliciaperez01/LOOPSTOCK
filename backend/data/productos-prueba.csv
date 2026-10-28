@@ -1,0 +1,9 @@
+sku;name;brand;category;quantity;price;cost;minStock;supplier
+DDJ-FLX4;Controladora DDJ-FLX4;Pioneer DJ;Controladoras;6;299,00;210,00;2;
+XDJ-RX3;Sistema XDJ-RX3;Pioneer DJ;Sistemas todo en uno;2;2199,00;1650,00;1;
+HDJ-X5;Auriculares HDJ-X5;Pioneer DJ;Auriculares;10;129,90;80,00;3;
+DJM-S11;Mezclador DJM-S11;Pioneer DJ;Mezcladores;3;1999,00;1500,00;1;Pioneer DJ
+DDJ-FLX4;Controladora repetida;Pioneer DJ;Controladoras;1;299,00;210,00;1;
+TT-500;Plato TT-500;Reloop;Platos;0;399,00;280,00;1;
+SC-LIVE4;Denon SC Live 4;Denon DJ;Sistemas todo en uno;2;abc;900,00;1;
+;Sin SKU;Genérica;Accesorios;5;9,90;4,00;1;

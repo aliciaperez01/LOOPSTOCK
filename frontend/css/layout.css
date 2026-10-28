@@ -1,0 +1,157 @@
+
+/* =========================================
+   LOOPSTOCK - ESTRUCTURA Y DISEÑO
+   MOBILE FIRST
+   ========================================= */
+
+
+/* =========================================
+   1. ESTRUCTURA PRINCIPAL
+   ========================================= */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 0;
+}
+
+.sidebar {
+  position: static;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 16px;
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  min-height: 64px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.page-content {
+  width: 100%;
+  max-width: 1600px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 18px 14px;
+  margin: 0 auto;
+}
+
+
+/* =========================================
+   2. MARCA
+   ========================================= */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.brand-name {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+
+/* =========================================
+   3. NAVEGACIÓN
+   ========================================= */
+
+.nav-label {
+  margin: 20px 12px 10px;
+  color: #b9cbd5;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  color: #e0e9ee;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.nav-link.active {
+  box-shadow: inset 3px 0 #4ed0a6;
+}
+
+
+/* =========================================
+   4. ENCABEZADOS DE PÁGINA
+   ========================================= */
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  margin-top: 0;
+}
+
+.page-description {
+  color: var(--text-muted);
+  margin-bottom: 0;
+}
+
+
+/* =========================================
+   5. EVITAR DESBORDAMIENTOS
+   ========================================= */
+
+.main-content,
+.page-content,
+.page-header,
+.topbar,
+.sidebar {
+  overflow-wrap: anywhere;
+}
+
+.page-header > *,
+.topbar > * {
+  min-width: 0;
+}

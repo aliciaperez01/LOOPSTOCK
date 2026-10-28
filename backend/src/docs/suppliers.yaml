@@ -1,0 +1,150 @@
+components:
+  schemas:
+    ProveedorEntrada:
+      type: object
+      description: Solo se aceptan estos campos; el resto (_id, active, fechas) se ignora.
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80, example: Pioneer DJ Europe }
+        taxId: { type: string, pattern: "^[A-Z0-9]{8,12}$", description: "CIF/NIF, único si existe", example: B12345678 }
+        contactName: { type: string, maxLength: 80, example: Laura Gómez }
+        email: { type: string, format: email, example: pedidos@pioneerdj.eu }
+        phone: { type: string, maxLength: 20, example: "+34 600 000 000" }
+        website: { type: string, example: "https://www.pioneerdj.com" }
+        notes: { type: string, maxLength: 500, example: Entrega en 48 h }
+    Proveedor:
+      allOf:
+        - $ref: "#/components/schemas/ProveedorEntrada"
+        - type: object
+          properties:
+            _id: { type: string, example: 6718f0c2a1b2c3d4e5f60789 }
+            active: { type: boolean, example: true }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+
+paths:
+  /api/suppliers:
+    get:
+      tags: [Proveedores]
+      summary: Listar proveedores (admin y empleado)
+      description: Ordenados por nombre. Sin filtros devuelve activos e inactivos.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          description: Busca en el nombre o el CIF (sin distinguir mayúsculas)
+          schema: { type: string, example: pioneer }
+        - name: active
+          in: query
+          description: Filtra por estado
+          schema: { type: string, enum: ["true", "false"] }
+      responses:
+        "200":
+          description: Lista de proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Proveedor" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+    post:
+      tags: [Proveedores]
+      summary: Crear proveedor (solo admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ProveedorEntrada"
+                - required: [name]
+      responses:
+        "201":
+          description: Proveedor creado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Proveedor" }
+        "400":
+          description: Datos no válidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorValidacion" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+        "409":
+          description: Ya existe un proveedor con ese nombre o CIF
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorDuplicado" }
+
+  /api/suppliers/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdMongo"
+    get:
+      tags: [Proveedores]
+      summary: Obtener un proveedor (admin y empleado)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Proveedor encontrado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Proveedor" }
+        "400": { $ref: "#/components/responses/IdNoValido" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+    put:
+      tags: [Proveedores]
+      summary: Actualizar proveedor (solo admin)
+      description: Actualización parcial; solo cambia los campos enviados.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProveedorEntrada" }
+      responses:
+        "200":
+          description: Proveedor actualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Proveedor" }
+        "400":
+          description: Id o datos no válidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorValidacion" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }
+        "409":
+          description: Ya existe un proveedor con ese nombre o CIF
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorDuplicado" }
+    delete:
+      tags: [Proveedores]
+      summary: Desactivar proveedor (baja lógica, solo admin)
+      description: No borra el documento; pone active a false para no romper los productos que lo referencian.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Proveedor desactivado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: Proveedor desactivado correctamente }
+                  proveedor: { $ref: "#/components/schemas/Proveedor" }
+        "400": { $ref: "#/components/responses/IdNoValido" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }

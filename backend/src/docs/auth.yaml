@@ -1,0 +1,75 @@
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        _id: { type: string, example: 6718f0c2a1b2c3d4e5f60789 }
+        name: { type: string, example: Administrador }
+        email: { type: string, format: email, example: admin@loopstock.com }
+        role: { type: string, enum: [admin, empleado] }
+        active: { type: boolean, example: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión y obtener un token JWT
+      description: El token caduca según JWT_EXPIRES_IN (1 hora por defecto).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email, example: admin@loopstock.com }
+                password: { type: string, format: password, example: "********" }
+      responses:
+        "200":
+          description: Login correcto
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Login correcto }
+                  token: { type: string, example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... }
+                  user: { $ref: "#/components/schemas/Usuario" }
+        "400":
+          description: Falta el email o la contraseña
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: Email y contraseña son obligatorios }
+        "401":
+          description: Credenciales incorrectas (mismo mensaje si el email no existe)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: Credenciales incorrectas }
+        "403":
+          description: Usuario desactivado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: Usuario desactivado }
+
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Datos del usuario del token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuario autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: "#/components/schemas/Usuario" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }

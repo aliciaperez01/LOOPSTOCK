@@ -1,0 +1,206 @@
+
+/* =========================================
+   LOOPSTOCK - PÁGINA DE PRODUCTOS
+   MOBILE FIRST
+   ========================================= */
+
+
+/* =========================================
+   1. ESTADÍSTICAS DE PRODUCTOS
+   ========================================= */
+
+.product-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 12px;
+  margin: 18px 0 24px;
+}
+
+.product-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 145px;
+  box-sizing: border-box;
+  padding: 14px 12px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* Etiquetas, valores y textos secundarios */
+.product-stat-label,
+.product-stat-value,
+.product-stat-note {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.product-stat-label {
+  min-height: 34px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.product-stat-value {
+  color: var(--text);
+  font-size: clamp(1rem, 4.5vw, 1.5rem);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.product-stat-note {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+
+/* =========================================
+   2. FILTROS DE PRODUCTOS
+   ========================================= */
+
+.product-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+
+  min-width: 0;
+  padding: 16px;
+  margin: 20px 0;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+
+/* =========================================
+   3. BUSCADOR Y SELECTORES
+   ========================================= */
+
+#product-search,
+#category-filter,
+#stock-filter {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  padding: 0 14px;
+
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#product-search {
+  padding-left: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b7b91' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 14px center;
+  background-size: 18px;
+}
+
+#product-search::placeholder {
+  color: var(--text-muted);
+}
+
+#product-search:focus,
+#category-filter:focus,
+#stock-filter:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(24, 133, 107, 0.14);
+}
+
+
+/* =========================================
+   4. LIMPIAR FILTROS
+   ========================================= */
+
+#clear-filters {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 18px;
+
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#clear-filters:hover {
+  color: var(--accent);
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+
+/* =========================================
+   5. NÚMERO DE RESULTADOS
+   ========================================= */
+
+#product-count {
+  margin: 12px 0 16px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+
+/* =========================================
+   6. ACCIONES DE LA TABLA
+   ========================================= */
+
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.product-actions .btn {
+  max-width: 100%;
+  text-align: center;
+}
+
+
+/* =========================================
+   7. MODO OSCURO
+   ========================================= */
+
+body.dark-mode .product-stat {
+  background: var(--surface);
+  border-color: var(--border);
+}

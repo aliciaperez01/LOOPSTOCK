@@ -23,14 +23,14 @@
 |---|---|---|---|
 | Necesarias sin hacer (P0–P1) | 8 | 6 | 6 |
 | — de ellas bloqueadas | 2 (T12, T08) | 1 (T07) | 0 |
-| Pendientes de pruebas | 1 (V-A2) | 2 (V-C1, V-C3) | — |
+| Pendientes de pruebas | 1 (V-A2) | 1 (V-C3) | — |
 | Recomendables (P2) | 1 | 1 | — |
 | Opcionales (P3) | 3 | 2 | — |
 | Completadas desde la revisión 1 | 0 | 3 (T01, V-C2, T02) | 0 |
 
 ### Próxima acción
-- **Coral:** esperar la revisión de Ali del PR #1; tras el merge, V-C1 y empezar T06. T01, V-C2 y T02 hechas.
-- **Ali:** V-A1 y revisar el **PR #1** (J2). Mientras tanto, **sin código nuevo**; sí puede preparar D2 y D3.
+- **Coral:** T06 en `feature/users` (decidido: el admin puede crear admins, `DELETE` = baja lógica, sin `users.html`).
+- **Ali:** V-A1, `git pull origin main` + `npm install` en `backend/` y crear su rama desde `main` (cierra J2). Después, T05.
 - **Juntas:** J1 (pregunta al profesorado) y cerrar D1–D5 antes del Paso 2.
 
 ### Información que falta (declarada)
@@ -152,8 +152,9 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Archivos: `backend/src/config/swagger.js`, `backend/src/docs/auth|suppliers|imports.yaml`, `backend/src/server.js`, `backend/package.json`, `backend/package-lock.json`, `CHECKLIST_TRABAJO.md` (los `.docx` de planificación no se suben)
   - Hecho cuando: el commit está en `origin/rama_coral` y `git status` no muestra esos archivos.
   - Riesgo: toca `server.js` y `package.json` (compartidos) → avisar a Ali. Ali tendrá que hacer `npm install` en `backend/` tras J2.
-- [ ] **V-C1 — Repetir sobre `main` las pruebas del 25/10**
-  - P1 · `pendiente de pruebas` · Depende de: J2 · 0,5 h
+- [x] **V-C1 — Repetir sobre `main` las pruebas del 25/10**
+  - P1 · `completada` (28/10, sobre `369bf1d`) · Depende de: J2 · 0,5 h
+  - Evidencia: login 400/401/200 · proveedores 400 (validación e ID), 404, 409 · CSV → `ImportJob` con errores por fila · `.txt` → 400 · `GET /api/imports/:id` 200 con `rowErrors`.
   - Pruebas: login 200/400/401 · proveedores 400/404/409 · CSV de prueba → `partial` · `.txt` → 400 · `GET /api/imports/:id` muestra errores por fila.
 - [ ] **T06 — Crear usuarios empleado**
   - P1 · `pendiente` · Depende de: J2 · 2–3 h
@@ -205,7 +206,7 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - P0 · `pendiente` · Depende de: — · 0,5 h
   - Hecho cuando: respuesta por escrito guardada en el canal del equipo. Desbloquea T07.
 - [ ] **J2 — PR `rama_coral → main`** (lo abre Coral, lo revisa Ali)
-  - P0 · `pendiente de revisión` (**PR #1** abierto el 28/10, sin conflictos; espera V-A1 y aprobación de Ali) · Depende de: T01, T02, V-A1 · 1 h
+  - P0 · `pendiente de integración` (**PR #1 fusionado** el 28/10, `main` = `369bf1d`; smoke test de Coral OK; falta que Ali confirme V-A1 y haga pull + `npm install`) · Depende de: T01, T02, V-A1 · 1 h
   - Antes de fusionar: `git diff origin/main...origin/rama_coral --stat` revisado juntas (merge directo; `rama_coral` ya contiene `rama_alicia`).
   - Smoke test: el servidor arranca · login OK · `/api/products` sin token → 401 · CSV de prueba importa · `/api/docs` abre.
   - Hecho cuando: PR fusionado, las dos han hecho `git pull` + `npm install` en `backend/` y han creado su rama desde `main`.
@@ -287,3 +288,5 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
   - Verificado: todos los `require` relativos del backend resuelven en Linux (Render) y `swagger.js` construye la ruta de `docs` de forma compatible.
 - **28/10 (18:15):** T01 y V-C2 completadas (pruebas en local contra Atlas). T02 en curso. Los `.docx` quedan fuera del repo: esta checklist es la fuente de verdad.
 - **28/10 (19:10):** T02 completada (`8b161d7`). PR #1 `rama_coral → main` abierto (J2 pendiente de revisión). **Regla nueva:** integrar en `main` al cerrar cada bloque con su PR, como mucho cada 1–2 días, y antes de empezar trabajo que dependa de la otra; cada sesión empieza con `git pull origin main`.
+- **28/10 (22:58):** PR #1 fusionado en `main` (`369bf1d`). Smoke test de J2 en la copia de Coral: servidor arranca · login 200 y 401 con credenciales incorrectas · `/api/products` sin token → 401 · CSV → `ImportJob` `failed` 0/8 (esperado: las 3 filas válidas ya existían desde el 25/10; los otros 5 errores coinciden) · `/api/docs` carga. Nota: con `curl`, el CSV hay que enviarlo con `;type=text/csv` (si no, llega como `application/octet-stream` y el filtro de Multer devuelve 400). Decisiones de T06 cerradas.
+- **28/10 (23:00):** V-C1 completada. Rama `feature/users` creada desde `main`; T06 en curso.

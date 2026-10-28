@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth.routes");
 const productsRoutes = require("./routes/products.routes");
 const suppliersRoutes = require("./routes/suppliers.routes");
 const importsRoutes = require("./routes/imports.routes");
+const usersRoutes = require("./routes/users.routes");
 const swaggerSpec = require("./config/swagger");
 
 const logger = require("./middlewares/logger");
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/suppliers", suppliersRoutes);
 app.use("/api/imports", importsRoutes);
+app.use("/api/users", usersRoutes);
 
 // Documentación interactiva (Swagger UI) y especificación en JSON
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

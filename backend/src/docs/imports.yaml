@@ -1,0 +1,117 @@
+components:
+  schemas:
+    ErrorFila:
+      type: object
+      properties:
+        row: { type: integer, description: "Número de fila del CSV (la cabecera es la 1)", example: 4 }
+        sku: { type: string, example: DDJ-FLX4 }
+        message: { type: string, example: Ya existe un producto con ese SKU }
+    Importacion:
+      type: object
+      properties:
+        _id: { type: string, example: 6718f0c2a1b2c3d4e5f60789 }
+        fileName: { type: string, example: productos-prueba.csv }
+        user:
+          description: Id del usuario, o su nombre y email en GET
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                _id: { type: string }
+                name: { type: string }
+                email: { type: string }
+        status:
+          type: string
+          enum: [completed, partial, failed]
+          description: "completed: todas insertadas · partial: algunas · failed: ninguna"
+        totalRows: { type: integer, example: 8 }
+        insertedRows: { type: integer, example: 3 }
+        errorRows: { type: integer, example: 5 }
+        rowErrors:
+          type: array
+          description: Máximo 500. No se incluye en el listado.
+          items: { $ref: "#/components/schemas/ErrorFila" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+paths:
+  /api/imports:
+    post:
+      tags: [Importaciones]
+      summary: Importar productos desde un CSV (solo admin)
+      description: |
+        Importación **parcial**: las filas válidas se insertan y las erróneas se registran en `rowErrors`.
+        Un SKU que ya existe se salta como error (no se sobrescribe).
+
+        - Columnas obligatorias: `sku`, `name`, `category`, `quantity`, `price`
+        - Opcionales: `brand`, `model`, `description`, `cost`, `minStock`, `supplier`, `status`
+        - Separador `,` o `;` (se detecta por la cabecera). Decimales con `.` o `,`
+        - Si trae `supplier`, debe existir y estar activo
+        - Máximo 2 MB, extensión `.csv`
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Archivo .csv
+      responses:
+        "201":
+          description: Importación procesada (revisa status y rowErrors)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje: { type: string, example: "Importación partial: 3 de 8 filas insertadas" }
+                  importacion: { $ref: "#/components/schemas/Importacion" }
+        "400":
+          description: Falta el archivo, no es CSV, supera 2 MB o le faltan columnas obligatorias
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: "Faltan columnas obligatorias: price" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+    get:
+      tags: [Importaciones]
+      summary: Historial de importaciones (solo admin)
+      description: De la más reciente a la más antigua, sin el detalle de errores.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de importaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Importacion" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/imports/{id}:
+    get:
+      tags: [Importaciones]
+      summary: Detalle de una importación con sus errores por fila (solo admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdMongo"
+      responses:
+        "200":
+          description: Importación encontrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Importacion" }
+        "400": { $ref: "#/components/responses/IdNoValido" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+        "404": { $ref: "#/components/responses/NoEncontrado" }

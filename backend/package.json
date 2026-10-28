@@ -21,6 +21,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.7.0",
     "mongoose": "^9.11.2",
-    "multer": "^2.5.0"
+    "multer": "^2.5.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
   }
 }

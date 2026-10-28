@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
 require("dotenv").config();
 
 const { connectDB } = require("./config/db");
@@ -7,6 +8,7 @@ const authRoutes = require("./routes/auth.routes");
 const productsRoutes = require("./routes/products.routes");
 const suppliersRoutes = require("./routes/suppliers.routes");
 const importsRoutes = require("./routes/imports.routes");
+const swaggerSpec = require("./config/swagger");
 
 const logger = require("./middlewares/logger");
 const noEncontrada = require("./middlewares/noEncontrada");
@@ -29,6 +31,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/suppliers", suppliersRoutes);
 app.use("/api/imports", importsRoutes);
+
+// Documentación interactiva (Swagger UI) y especificación en JSON
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api/docs.json", (req, res) => res.json(swaggerSpec));
 
 // Las rutas inexistentes deben gestionarse antes del middleware de errores.
 app.use(noEncontrada);

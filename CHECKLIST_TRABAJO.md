@@ -21,16 +21,16 @@
 ### Recuento
 | | Ali | Coral | Conjuntas |
 |---|---|---|---|
-| Necesarias sin hacer (P0–P1) | 8 | 8 | 6 |
+| Necesarias sin hacer (P0–P1) | 8 | 6 | 6 |
 | — de ellas bloqueadas | 2 (T12, T08) | 1 (T07) | 0 |
-| Pendientes de pruebas | 1 (V-A2) | 3 (V-C1–V-C3) | — |
+| Pendientes de pruebas | 1 (V-A2) | 2 (V-C1, V-C3) | — |
 | Recomendables (P2) | 1 | 1 | — |
 | Opcionales (P3) | 3 | 2 | — |
-| Completadas desde la revisión 1 | 0 | 0 | 0 |
+| Completadas desde la revisión 1 | 0 | 3 (T01, V-C2, T02) | 0 |
 
 ### Próxima acción
-- **Coral:** T01 → V-C2 → T02 → abrir el PR `rama_coral → main` (J2).
-- **Ali:** V-A1 y revisar el PR (J2). Mientras tanto, **sin código nuevo**; sí puede preparar D2 y D3.
+- **Coral:** esperar la revisión de Ali del PR #1; tras el merge, V-C1 y empezar T06. T01, V-C2 y T02 hechas.
+- **Ali:** V-A1 y revisar el **PR #1** (J2). Mientras tanto, **sin código nuevo**; sí puede preparar D2 y D3.
 - **Juntas:** J1 (pregunta al profesorado) y cerrar D1–D5 antes del Paso 2.
 
 ### Información que falta (declarada)
@@ -140,16 +140,16 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
 > **Archivos de Coral:** `models/User|Supplier|ImportJob.js`, `auth.*`, `suppliers.*`, `imports.*`, `users.*`, `analytics.*`, `middlewares/auth|upload.middleware.js`, `config/swagger.js`, `src/docs/*.yaml` (menos `products.yaml`), `js/config|api|auth.js`, páginas de login, proveedores e importación. **`server.js` solo lo modifica Coral.**
 
 ### 🟥 Necesarias
-- [ ] **T01 — Restaurar `const AppError = require("../utils/AppError");`** en `backend/src/services/auth.service.js` (línea 3, copia local)
-  - P0 · `pendiente` · Depende de: — · 5 min
-  - Hecho cuando: login vacío → 400 y credenciales incorrectas → 401 (ahora dan 500 por `ReferenceError`).
-  - Riesgo: si se sube Swagger sin esto, `main` tendría el login roto.
-- [ ] **V-C2 — Swagger en local**
-  - P0 · `pendiente de pruebas` · Depende de: T01 · 0,3 h
+- [x] **T01 — Restaurar `const AppError = require("../utils/AppError");`** en `backend/src/services/auth.service.js` (línea 3, copia local)
+  - P0 · `completada` (28/10) · Depende de: — · 5 min
+  - Evidencia: PowerShell contra Atlas → login vacío 400, credenciales incorrectas 401. Sin commit: el archivo vuelve a ser idéntico a `9c94bf4` (el fallo solo estaba en local).
+- [x] **V-C2 — Swagger en local**
+  - P0 · `completada` (28/10) · Depende de: T01 · 0,3 h
+  - Evidencia: `/api/docs` carga; `GET /api/suppliers` sin token → 401 «Token no proporcionado», token falso → 401 «Token inválido o expirado», token válido → acceso. Nota: copiar el token desde la UI puede meter caracteres no ISO-8859-1; usar `$r.token | Set-Clipboard` en PowerShell.
   - Pruebas: `/api/docs` y `/api/docs.json` cargan; Authorize con token; probar desde la UI un login y un `GET /api/suppliers`.
-- [ ] **T02 — Commit y push de Swagger a `rama_coral`**
-  - P0 · `en curso` (hecho en local, sin commit) · Depende de: T01, V-C2 · 0,5 h
-  - Archivos: `backend/src/config/swagger.js`, `backend/src/docs/auth|suppliers|imports.yaml`, `backend/src/server.js`, `backend/package.json`, `backend/package-lock.json`, `backend/src/services/auth.service.js`, `CHECKLIST_TRABAJO.md`
+- [x] **T02 — Commit y push de Swagger a `rama_coral`**
+  - P0 · `completada` (28/10, commit `8b161d7`) · Depende de: T01, V-C2 · 0,5 h
+  - Archivos: `backend/src/config/swagger.js`, `backend/src/docs/auth|suppliers|imports.yaml`, `backend/src/server.js`, `backend/package.json`, `backend/package-lock.json`, `CHECKLIST_TRABAJO.md` (los `.docx` de planificación no se suben)
   - Hecho cuando: el commit está en `origin/rama_coral` y `git status` no muestra esos archivos.
   - Riesgo: toca `server.js` y `package.json` (compartidos) → avisar a Ali. Ali tendrá que hacer `npm install` en `backend/` tras J2.
 - [ ] **V-C1 — Repetir sobre `main` las pruebas del 25/10**
@@ -205,7 +205,7 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - P0 · `pendiente` · Depende de: — · 0,5 h
   - Hecho cuando: respuesta por escrito guardada en el canal del equipo. Desbloquea T07.
 - [ ] **J2 — PR `rama_coral → main`** (lo abre Coral, lo revisa Ali)
-  - P0 · `pendiente` · Depende de: T01, T02, V-A1 · 1 h
+  - P0 · `pendiente de revisión` (**PR #1** abierto el 28/10, sin conflictos; espera V-A1 y aprobación de Ali) · Depende de: T01, T02, V-A1 · 1 h
   - Antes de fusionar: `git diff origin/main...origin/rama_coral --stat` revisado juntas (merge directo; `rama_coral` ya contiene `rama_alicia`).
   - Smoke test: el servidor arranca · login OK · `/api/products` sin token → 401 · CSV de prueba importa · `/api/docs` abre.
   - Hecho cuando: PR fusionado, las dos han hecho `git pull` + `npm install` en `backend/` y han creado su rama desde `main`.
@@ -285,3 +285,5 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
   - **T02** incluye subir este archivo, para que Ali lo vea.
   - Corregida la numeración: el `.docx` llamaba «fase 2/3» a J3/J4; aquí son los Pasos 2 y 3.
   - Verificado: todos los `require` relativos del backend resuelven en Linux (Render) y `swagger.js` construye la ruta de `docs` de forma compatible.
+- **28/10 (18:15):** T01 y V-C2 completadas (pruebas en local contra Atlas). T02 en curso. Los `.docx` quedan fuera del repo: esta checklist es la fuente de verdad.
+- **28/10 (19:10):** T02 completada (`8b161d7`). PR #1 `rama_coral → main` abierto (J2 pendiente de revisión). **Regla nueva:** integrar en `main` al cerrar cada bloque con su PR, como mucho cada 1–2 días, y antes de empezar trabajo que dependa de la otra; cada sesión empieza con `git pull origin main`.

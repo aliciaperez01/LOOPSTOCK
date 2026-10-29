@@ -8,6 +8,11 @@
   <title>Productos | Loopstock</title>
 
   <link rel="stylesheet" href="../css/styles.css">
+  <!-- Sesión: si no hay token válido, redirige al login antes de pintar la página -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>protegerPagina();</script>
 </head>
 
 <body>

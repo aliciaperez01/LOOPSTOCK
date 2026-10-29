@@ -6,11 +6,13 @@ async function listar(req, res, next) {
   try {
     const filtros = {
       category: req.query.category,
-      search: req.query.search
+      search: req.query.search,
+      page: req.query.page,
+      limit: req.query.limit
     };
 
-    const productos = await productsService.listar(filtros);
-    res.status(200).json(productos);
+    const resultado = await productsService.listar(filtros);
+    res.status(200).json(resultado);
   } catch (error) {
     next(error);
   }

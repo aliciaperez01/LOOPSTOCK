@@ -1,9 +1,7 @@
-
 const mongoose = require("mongoose");
 const Product = require("../models/Product.js");
 
-
-// LISTAR, BUSCAR Y FILTRAR PRODUCTOS
+// LISTAR, BUSCAR, FILTRAR Y PAGINAR PRODUCTOS
 async function listar(filtros = {}) {
   const filtro = {};
 
@@ -12,23 +10,44 @@ async function listar(filtros = {}) {
   }
 
   if (filtros.search) {
-    const busqueda = filtros.search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const busqueda = filtros.search
+      .trim()
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     filtro.$or = [
-        { name: { $regex: busqueda, $options: "i" } },
-        { sku: { $regex: busqueda, $options: "i" } },
-        { category: { $regex: busqueda, $options: "i" } },
-        { supplier: { $regex: busqueda, $options: "i" } }
-        ];
+      { name: { $regex: busqueda, $options: "i" } },
+      { sku: { $regex: busqueda, $options: "i" } },
+      { category: { $regex: busqueda, $options: "i" } },
+      { supplier: { $regex: busqueda, $options: "i" } }
+    ];
   }
 
   if (filtros.lowStock === true) {
     filtro.$expr = { $lte: ["$quantity", "$minStock"] };
   }
 
-  return Product.find(filtro).sort({ name: 1 });
-}
+  const page = Math.max(1, Number.parseInt(filtros.page, 10) || 1);
+  const limit = Math.min(
+    100,
+    Math.max(1, Number.parseInt(filtros.limit, 10) || 10)
+  );
+  const skip = (page - 1) * limit;
 
+  const [items, total] = await Promise.all([
+    Product.find(filtro)
+      .sort({ name: 1 })
+      .skip(skip)
+      .limit(limit),
+    Product.countDocuments(filtro)
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    pages: Math.ceil(total / limit)
+  };
+}
 
 // BUSCAR POR ID
 async function buscarPorId(id) {

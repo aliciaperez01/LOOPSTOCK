@@ -1,5 +1,5 @@
 
-const DASHBOARD_API_URL = "http://localhost:3001/api/products";
+const DASHBOARD_API_URL = `${API_BASE_URL}/products`;
 
 async function loadDashboard() {
   const totalProducts = document.getElementById("total-products");
@@ -9,7 +9,7 @@ async function loadDashboard() {
   const dashboardTable = document.getElementById("dashboard-products");
 
   try {
-    const response = await fetch(DASHBOARD_API_URL);
+    const response = await fetchConToken(DASHBOARD_API_URL);
 
     if (!response.ok) {
       throw new Error("No se pudieron cargar los productos.");

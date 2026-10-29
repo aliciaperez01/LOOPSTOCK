@@ -23,13 +23,13 @@
 |---|---|---|---|
 | Necesarias sin hacer (P0–P1) | 8 | 6 | 6 |
 | — de ellas bloqueadas | 2 (T12, T08) | 1 (T07) | 0 |
-| Pendientes de pruebas | 1 (V-A2) | 1 (V-C3) | — |
+| Pendientes de pruebas | 1 (V-A2) | 0 | — |
 | Recomendables (P2) | 1 | 1 | — |
 | Opcionales (P3) | 3 | 2 | — |
 | Completadas desde la revisión 1 | 0 | 3 (T01, V-C2, T02) | 0 |
 
 ### Próxima acción
-- **Coral:** T06 en `feature/users` (decidido: el admin puede crear admins, `DELETE` = baja lógica, sin `users.html`).
+- **Coral:** PR `feature/users → main` (T06 + `users.yaml`); después T14.
 - **Ali:** V-A1, `git pull origin main` + `npm install` en `backend/` y crear su rama desde `main` (cierra J2). Después, T05.
 - **Juntas:** J1 (pregunta al profesorado) y cerrar D1–D5 antes del Paso 2.
 
@@ -156,13 +156,16 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - P1 · `completada` (28/10, sobre `369bf1d`) · Depende de: J2 · 0,5 h
   - Evidencia: login 400/401/200 · proveedores 400 (validación e ID), 404, 409 · CSV → `ImportJob` con errores por fila · `.txt` → 400 · `GET /api/imports/:id` 200 con `rowErrors`.
   - Pruebas: login 200/400/401 · proveedores 400/404/409 · CSV de prueba → `partial` · `.txt` → 400 · `GET /api/imports/:id` muestra errores por fila.
-- [ ] **T06 — Crear usuarios empleado**
-  - P1 · `pendiente` · Depende de: J2 · 2–3 h
+- [x] **T06 — Crear usuarios empleado**
+  - P1 · `pendiente de integración` (código y pruebas OK en `feature/users`, 28/10) · Depende de: J2 · 2–3 h
+  - Hecho: `GET/POST /api/users` y `DELETE /api/users/:id` (baja lógica), solo admin; el admin puede crear admins; lista blanca de campos; un admin no puede desactivarse a sí misma. Sin `users.html` (decidido).
+  - Evidencia (Atlas): sin token 401 · empleado 403 · POST 201 (un `active` colado se ignora) · email duplicado en mayúsculas 409 · rol no válido 400 · body vacío 400 · login del empleado 200 · `?role=jefe` 400 · DELETE: ID no válido 400, inexistente 404, a sí misma 400, OK 200 · login de un usuario desactivado → 403.
+  - Empleado de demo en Atlas: `empleado@loopstock.com` (la contraseña se comparte con Ali por privado, no en el repo).
   - Opción recomendada: `POST/GET /api/users` solo admin (`routes|controllers|services/users.*`), registrada en `server.js`. Mínimo si falta tiempo: el seed también crea un empleado de demo.
   - Hecho cuando: el admin crea un empleado y ese empleado hace login.
   - Prioridad práctica: hacerla **la primera del Paso 2**; Ali la necesita para probar T05 con el rol empleado.
-- [ ] **V-C3 — Roles con un empleado real**
-  - P1 · `pendiente de pruebas` · Depende de: T06 · 0,3 h
+- [x] **V-C3 — Roles con un empleado real**
+  - P1 · `completada` (28/10) · Depende de: T06 · 0,3 h · Evidencia: los 4 casos dan el código esperado.
   - Pruebas: empleado → `DELETE /api/products/:id` 403 · `POST /api/suppliers` 403 · `POST /api/imports` 403 · `GET /api/products` 200.
 - [ ] **T14 — Configuración de producción**
   - P1 · `pendiente` · Depende de: J2 · 1 h
@@ -177,7 +180,7 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Hecho cuando: las respuestas cuadran con un conjunto de datos calculado a mano y sin token → 401.
   - Riesgo: si D5 = baja lógica, filtrar `inactive`. Si J1 tarda, Coral puede empezar con `/summary` (sirve con cualquier dominio de inventario) y dejar el resto.
 - [ ] **T13 — `analytics.yaml` y `users.yaml`**
-  - P0 · `pendiente` · Depende de: T06, T07 · 1 h
+  - P0 · `en curso` (`users.yaml` hecho en `feature/users`, especificación OpenAPI validada; falta `analytics.yaml`) · Depende de: T06, T07 · 1 h
   - Hecho cuando: los dos módulos se prueban desde `/api/docs`.
 - [ ] **T15 — Despliegue en Render**
   - P0 · `pendiente` · Depende de: T14 (y J2) · 2–3 h · **Cambio respecto a la revisión 1:** antes dependía de J3.
@@ -290,3 +293,4 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
 - **28/10 (19:10):** T02 completada (`8b161d7`). PR #1 `rama_coral → main` abierto (J2 pendiente de revisión). **Regla nueva:** integrar en `main` al cerrar cada bloque con su PR, como mucho cada 1–2 días, y antes de empezar trabajo que dependa de la otra; cada sesión empieza con `git pull origin main`.
 - **28/10 (22:58):** PR #1 fusionado en `main` (`369bf1d`). Smoke test de J2 en la copia de Coral: servidor arranca · login 200 y 401 con credenciales incorrectas · `/api/products` sin token → 401 · CSV → `ImportJob` `failed` 0/8 (esperado: las 3 filas válidas ya existían desde el 25/10; los otros 5 errores coinciden) · `/api/docs` carga. Nota: con `curl`, el CSV hay que enviarlo con `;type=text/csv` (si no, llega como `application/octet-stream` y el filtro de Multer devuelve 400). Decisiones de T06 cerradas.
 - **28/10 (23:00):** V-C1 completada. Rama `feature/users` creada desde `main`; T06 en curso.
+- **28/10 (23:10):** T06 y V-C3 completadas en `feature/users`; `users.yaml` hecho (T13 en curso). Ali ya puede probar T05 con el empleado de demo en Atlas.

@@ -47,6 +47,15 @@ async function apiFetch(ruta, { method = "GET", body, headers = {} } = {}) {
   return datos;
 }
 
+// fetch() con el token de sesión, para el código que gestiona él mismo la respuesta
+// (products.js, product-form.js, dashboard.js). Recibe la URL completa.
+function fetchConToken(url, opciones = {}) {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const headers = { ...(opciones.headers || {}) };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return fetch(url, { ...opciones, headers });
+}
+
 // Convierte un error de la API en texto, incluyendo el detalle por campo
 function mensajeDeError(error) {
   if (!error.detalles || error.detalles.length === 0) return error.message;

@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:3001/api/products";
+const API_URL = `${API_BASE_URL}/products`;
 
 // Elementos de la página
 const productsTable = document.getElementById("products-table");
@@ -49,7 +49,7 @@ async function loadProducts() {
   refreshButton.disabled = true;
 
   try {
-    const response = await fetch(API_URL);
+    const response = await fetchConToken(API_URL);
 
     if (!response.ok) {
       throw new Error("No se pudieron obtener los productos.");
@@ -454,7 +454,7 @@ productsTable.addEventListener("click", async event => {
   button.textContent = "Eliminando...";
 
   try {
-    const response = await fetch(
+    const response = await fetchConToken(
       `${API_URL}/${encodeURIComponent(productId)}`,
       { method: "DELETE" }
     );

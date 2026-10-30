@@ -1,5 +1,5 @@
 
-const API_URL = "http://localhost:3001/api/products";
+const API_URL = `${API_BASE_URL}/products`;
 
 const form = document.getElementById("product-form");
 const formMessage = document.getElementById("form-message");
@@ -59,7 +59,7 @@ function populateCategories(products, selectedCategory = "") {
 }
 
 async function loadCategories(selectedCategory = "") {
-  const response = await fetch(API_URL);
+  const response = await fetchConToken(API_URL);
   const products = await readResponse(response);
 
   if (!Array.isArray(products)) {
@@ -77,7 +77,7 @@ async function loadProduct() {
   formMessage.textContent = "Cargando datos del producto...";
 
   try {
-    const response = await fetch(API_URL);
+    const response = await fetchConToken(API_URL);
     const products = await readResponse(response);
 
     if (!Array.isArray(products)) {
@@ -165,7 +165,7 @@ form.addEventListener("submit", async event => {
   try {
     const isEditing = Boolean(productId);
 
-    const response = await fetch(
+    const response = await fetchConToken(
       isEditing ? `${API_URL}/${encodeURIComponent(productId)}` : API_URL,
       {
         method: isEditing ? "PUT" : "POST",

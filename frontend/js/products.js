@@ -1,5 +1,5 @@
-
 // Elementos de la página
+
 const productsTable = document.getElementById("products-table");
 const productCount = document.getElementById("product-count");
 const productSearch = document.getElementById("product-search");

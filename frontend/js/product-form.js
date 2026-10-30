@@ -1,4 +1,3 @@
-
 const form = document.getElementById("product-form");
 const formMessage = document.getElementById("form-message");
 const saveButton = document.getElementById("save-button");

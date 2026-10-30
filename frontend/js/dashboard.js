@@ -231,4 +231,4 @@ function renderRecentMovements(movements) {
 
 if (protegerPagina()) {
   loadDashboard();
-}
+}

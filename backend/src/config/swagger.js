@@ -18,7 +18,8 @@ const definition = {
     { name: "Auth", description: "Login y usuario actual" },
     { name: "Proveedores", description: "CRUD de proveedores (baja lógica)" },
     { name: "Importaciones", description: "Importación de productos desde CSV (solo admin)" },
-    { name: "Usuarios", description: "Alta, listado y baja lógica de usuarios (solo admin)" }
+    { name: "Usuarios", description: "Alta, listado y baja lógica de usuarios (solo admin)" },
+    { name: "Analítica", description: "Métricas del inventario y de las importaciones (admin y empleado)" }
   ],
   components: {
     securitySchemes: {

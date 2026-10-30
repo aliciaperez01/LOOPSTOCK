@@ -13,25 +13,25 @@
 
 ## 0. Resumen
 
-### Estado real (28/10, 18:00)
-- **No hay cambios de código desde la auditoría de esta mañana.** Ninguna rama tiene commits nuevos (último en GitHub: `9c94bf4`, 25/10). La copia local de Coral sigue con Swagger sin commit y con la regresión de `AppError` (comprobado de nuevo: `auth.service.js` no lo importa y lo usa en las líneas 15, 23 y 27).
-- `main` sigue con solo la estructura inicial: **nada está integrado**.
-- `CHECKLIST_TRABAJO.md` y los `.docx` de planificación **no están en el repositorio**: Ali no los ve hasta que se suban (va en T02).
+### Estado real (30/10, 17:00)
+- `main` = `bb8231e`: PR #1 (`rama_coral`), #2 (T06), #4 (T14), #5 (esta checklist), #6 (URLs y token en las páginas de productos), #7 (T07 analítica) y #8 (T13 `analytics.yaml`).
+- **Desplegado en Render (T15):** API en `https://loopstock.onrender.com` (Swagger en `/api/docs`) y frontend en `https://loopstock-school.onrender.com/pages/login.html`. Login, dashboard, proveedores e importaciones cargan; CORS OK.
+- **Ali:** rama `tarea-alicia` (base `369bf1d`) con T09 solo en el backend (`523351f`), PR #3 abierto y **sin fusionar**. No fusionar hasta corregir lo indicado en T09.
 
 ### Recuento
 | | Ali | Coral | Conjuntas |
 |---|---|---|---|
-| Necesarias sin hacer (P0–P1) | 8 | 6 | 6 |
-| — de ellas bloqueadas | 2 (T12, T08) | 1 (T07) | 0 |
+| Necesarias sin hacer (P0–P1) | 8 | 1 (T19) | 5 |
+| — de ellas bloqueadas | 0 | 0 | 0 |
 | Pendientes de pruebas | 1 (V-A2) | 0 | — |
 | Recomendables (P2) | 1 | 1 | — |
 | Opcionales (P3) | 3 | 2 | — |
-| Completadas desde la revisión 1 | 0 | 3 (T01, V-C2, T02) | 0 |
+| Completadas desde la revisión 1 | 1 (V-A1) | 10 (T01, V-C2, T02, V-C1, T06, V-C3, T14, T15, T07, T13) | 1 (J2) |
 
 ### Próxima acción
-- **Coral:** PR `feature/users → main` (T06 + `users.yaml`); después T14.
-- **Ali:** V-A1, `git pull origin main` + `npm install` en `backend/` y crear su rama desde `main` (cierra J2). Después, T05.
-- **Juntas:** J1 (pregunta al profesorado) y cerrar D1–D5 antes del Paso 2.
+- **Coral:** verificar Productos y Dashboard en Render tras la PR #6 → T19 (README) → T17. Enviar J1.
+- **Ali:** `git pull origin main` en `tarea-alicia` → terminar T05 (logout y Eliminar por rol) + T09 (frontend y `/low-stock`) en el mismo PR → T12 → T08 → T16.
+- **Juntas:** J1 (profesorado) y cerrar D4 (formato paginado) y D5 (borrado).
 
 ### Información que falta (declarada)
 - Copia local de Ali: no se ha podido ver; puede haber trabajo sin subir desde el 24/10.
@@ -83,12 +83,14 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
 > **Archivos de Ali:** `models/Product.js`, `controllers|services|routes/products.*`, `src/docs/products.yaml`, `pages/products|product-form|dashboard.html`, `js/products|product-form|dashboard.js`, `crear-catalogo.html`, `index.html`.
 
 ### 🟥 Necesarias
-- [ ] **V-A1 — Confirmar que no hay cambios locales sin subir**
-  - P0 · `pendiente` · Depende de: — · 0,2 h
-  - Hecho cuando: `git status` limpio y `git log origin/rama_alicia..HEAD` vacío, o los cambios están subidos y avisados.
+- [x] **V-A1 — Confirmar que no hay cambios locales sin subir**
+  - P0 · `completada` (29/10: Ali subió `tarea-alicia` desde `369bf1d`) · Depende de: — · 0,2 h
+  - Hecho cuando: `git status` limpio y `git log origin/rama_alicia..HEAD` vacío, o los cambios están subidos y avisados. Se da por cerrada cuando Ali sube su primera rama desde `main` (cualquier trabajo local pendiente aparecerá ahí).
   - Riesgo: si hay trabajo sin subir y se fusiona J2 antes, habrá conflictos en `products.*`.
 - [ ] **T05 — Conectar las páginas de productos con el login**
-  - P0 · `pendiente` · Depende de: J2, D2 · 2–3 h
+  - P0 · `en curso` · Depende de: J2, D2 · 2–3 h
+  - **Hecho (PR #6, `c4acdb6`, Coral):** `config.js`, `api.js`, `auth.js` y `protegerPagina()` en `products`, `product-form` y `dashboard`; `fetchConToken()` en `api.js` (D17); `grep -rn localhost frontend` solo encuentra `js/config.js`.
+  - **Falta (Ali):** «Cerrar sesión» con `data-logout` en `products`, `product-form` y `dashboard` (ahora son enlaces a `login.html` y no borran el token) · `data-role="admin"` en Eliminar (`products.js`, línea ~308) · decidir D2 (`crear-catalogo.html`) · verificar en Render con los dos roles.
   - Archivos: `pages/products|product-form|dashboard.html`, `js/products|product-form|dashboard.js`, `crear-catalogo.html` (según D2)
   - Pasos: `<script>` de `config.js`, `api.js`, `auth.js` antes del JS de la página + `protegerPagina()` · `fetch(API_URL…)` → `apiFetch("/products…")` y borrar las constantes con `localhost` · «Cerrar sesión» con `data-logout` · `data-role="admin"` en Eliminar.
   - Hecho cuando: admin y empleado navegan sin 401 en consola, el empleado no ve Eliminar, el logout borra el token, y `grep -rn localhost frontend` solo encuentra `js/config.js`.
@@ -101,22 +103,24 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - P1 · `pendiente` · Depende de: T05 · 0,5 h
   - Hecho cuando: abrir la raíz del frontend (local y Render) nunca muestra una página en blanco.
 - [ ] **T09 — Paginación de productos**
-  - P1 · `pendiente` · Depende de: T05 (mismos archivos), D4 · 2–3 h
+  - P1 · `en curso` (backend en `tarea-alicia` `523351f`, PR #3 sin fusionar) · Depende de: T05 (mismos archivos), D4 · 2–3 h
   - Archivos: `services/products.service.js`, `controllers/products.controller.js`, `js/products.js`, `pages/products.html`
   - Detalle: `GET /api/products?page=&limit=` → formato de D4; mantiene `search` y `category`; `limit` 10 por defecto y 100 como máximo; `page`/`limit` no numéricos → 400.
   - Hecho cuando: `?page=2&limit=5` devuelve 5 productos y el `total` correcto, y la interfaz cambia de página.
   - Riesgo: rompe `dashboard.js` (espera un array) y la importación no le afecta. Arreglar `dashboard.js` en el mismo PR.
+  - **Revisión de `523351f` (29/10), pendiente antes de fusionar:** (1) `products.js` y `dashboard.js` siguen esperando un array → adaptarlos a `{ items, total, page, pages }`; (2) `listarBajoStock` reutiliza `listar` y ahora devuelve solo 10 productos → que `/low-stock` no pagine; (3) `page`/`limit` no numéricos usan el valor por defecto en vez de 400 → decidir en D4 y documentarlo; (4) hacer `git pull origin main` (la rama no tiene T06 ni T14); (5) `products.yaml` (T12) ya no está bloqueado.
 - [ ] **T10 — Relación producto → proveedor**
   - P1 · `pendiente` · Depende de: J2, D3 · 2–3 h
   - Archivos: `pages/product-form.html`, `js/product-form.js` y, si D3 = completo, `models/Product.js` (+ `imports.service.js`, de Coral).
   - Hecho cuando: no se puede guardar un producto con un proveedor inexistente o inactivo y `data/productos-prueba.csv` sigue importando igual (`partial`, 3/8).
   - Riesgo: con D3 = completo, Ali y Coral tocarían a la vez la lógica de proveedor → Coral hace el cambio de `imports.service.js` en su rama.
 - [ ] **T12 — `src/docs/products.yaml`** (plantilla: `suppliers.yaml`)
-  - P0 · `bloqueada` (Swagger aún no está en GitHub) · Depende de: T02, T09 · 1,5 h
+  - P0 · `pendiente` (Swagger en `main` desde el 28/10; plantillas: `suppliers.yaml`, `analytics.yaml`; añadir la etiqueta en `tags` de `config/swagger.js`, D18) · Depende de: T09 · 1,5 h
   - Hecho cuando: todas las rutas de `/api/products` (incluidas `/low-stock` y la paginación) aparecen en `/api/docs` y funcionan con Authorize. Si se hace T11 después, se actualiza el `DELETE`.
 - [ ] **T08 — El dashboard usa `/api/analytics/summary`**
-  - P1 · `bloqueada` · Depende de: T05, T07 · 1–2 h
+  - P1 · `pendiente` (T07 en `main`; `dashboard.js` ya envía el token con `fetchConToken`) · Depende de: T05, T07 · 1–2 h
   - Archivos: `js/dashboard.js`, `pages/dashboard.html`
+  - Endpoints: `GET /api/analytics/summary`, `/by-category`, `/by-supplier`, `/imports` (contrato en `/api/docs` → Analítica).
   - Hecho cuando: las cifras coinciden con la respuesta del endpoint con los mismos datos.
 - [ ] **T19b — Sección de productos en el README** (endpoints, filtros, paginación)
   - P1 · `pendiente` · Depende de: T09, T19 · 0,5 h
@@ -129,7 +133,7 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Riesgo: cambia un campo de `Product` → avisar a Coral (la analítica debe filtrar `inactive`).
 
 ### ⬜ Opcionales
-- [ ] **T21 — Limpiar el repo:** quitar de Git `~$parto de tareas.docx`, `package.json` y `package-lock.json` de la raíz (dependencias instaladas ahí por error), `backend/legacy-mongodb/`, `frontend/js/router.js` (vacío). · P3 · 0,5 h · Depende de: J2 · Prueba: el backend arranca desde `backend/`.
+- [ ] **T21 — Limpiar el repo:** quitar de Git `~$parto de tareas.docx`, `package.json` y `package-lock.json` de la raíz (dependencias instaladas ahí por error), `backend/legacy-mongodb/`, `frontend/js/router.js` (vacío); añadir `*.docx` y `~$*` a `.gitignore`. El `package.json` de la raíz ya causó un fallo en Render («Missing script: start»). · P3 · 0,5 h · Depende de: J2 · Prueba: el backend arranca desde `backend/`.
 - [ ] **T22b — Jest + Supertest de productos** (409, 400). · P3 · 3–4 h · Depende de: J2
 - [ ] **T23 — Movimientos de stock** (`movements.html` y `movements.js` están vacíos). · P3 · 5–6 h · Depende de: T11
 
@@ -157,7 +161,7 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Evidencia: login 400/401/200 · proveedores 400 (validación e ID), 404, 409 · CSV → `ImportJob` con errores por fila · `.txt` → 400 · `GET /api/imports/:id` 200 con `rowErrors`.
   - Pruebas: login 200/400/401 · proveedores 400/404/409 · CSV de prueba → `partial` · `.txt` → 400 · `GET /api/imports/:id` muestra errores por fila.
 - [x] **T06 — Crear usuarios empleado**
-  - P1 · `pendiente de integración` (código y pruebas OK en `feature/users`, 28/10) · Depende de: J2 · 2–3 h
+  - P1 · `completada` (PR #2 fusionado, `89a4df8`, 29/10) · Depende de: J2 · 2–3 h
   - Hecho: `GET/POST /api/users` y `DELETE /api/users/:id` (baja lógica), solo admin; el admin puede crear admins; lista blanca de campos; un admin no puede desactivarse a sí misma. Sin `users.html` (decidido).
   - Evidencia (Atlas): sin token 401 · empleado 403 · POST 201 (un `active` colado se ignora) · email duplicado en mayúsculas 409 · rol no válido 400 · body vacío 400 · login del empleado 200 · `?role=jefe` 400 · DELETE: ID no válido 400, inexistente 404, a sí misma 400, OK 200 · login de un usuario desactivado → 403.
   - Empleado de demo en Atlas: `empleado@loopstock.com` (la contraseña se comparte con Ali por privado, no en el repo).
@@ -167,25 +171,33 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
 - [x] **V-C3 — Roles con un empleado real**
   - P1 · `completada` (28/10) · Depende de: T06 · 0,3 h · Evidencia: los 4 casos dan el código esperado.
   - Pruebas: empleado → `DELETE /api/products/:id` 403 · `POST /api/suppliers` 403 · `POST /api/imports` 403 · `GET /api/products` 200.
-- [ ] **T14 — Configuración de producción**
-  - P1 · `pendiente` · Depende de: J2 · 1 h
+- [x] **T14 — Configuración de producción**
+  - P1 · `completada` (PR #4, `689b4ba`, 29/10) · Depende de: J2 · 1 h
+  - Evidencia: origen permitido → cabecera CORS; no permitido → sin cabecera (antes 500); sin `JWT_SECRET` no arranca; en producción tampoco sin `FRONTEND_URL`; barra final en `FRONTEND_URL` tolerada; `config.js` elige la URL en 4 casos. Login local con Live Server (5500) OK.
   - Archivos: `backend/src/server.js`, `backend/.env.example`, `frontend/js/config.js`
   - Detalle: `cors({ origin: FRONTEND_URL })` con lista separada por comas (ahora `cors()` está abierto) · el servidor no arranca sin `JWT_SECRET` ni `MONGODB_URI` · `config.js` elige la URL de la API según `location.hostname`.
   - Hecho cuando: un origen no permitido se bloquea, el servidor no arranca sin `JWT_SECRET` y el frontend local sigue funcionando.
   - Riesgo: si `FRONTEND_URL` no coincide con el puerto real de Live Server (5000 o 5500), todo el frontend falla. Documentarlo en el README.
-- [ ] **T07 — Endpoints de analítica** (obligatorio)
-  - P0 · `bloqueada` (D1/J1) · Depende de: J1, J2, D4, D5 · 4–5 h
+- [x] **T07 — Endpoints de analítica** (obligatorio)
+  - P0 · `completada` (PR #7, `f3ada0d` → `75da7c8`, 30/10; empezada sin J1, ver nota de J1) · Depende de: J1, J2, D4, D5 · 4–5 h
+  - **Resultado:** `/summary`, `/by-category`, `/by-supplier`, `/imports` con `aggregate`; solo productos `status: "active"`; stock bajo = `quantity <= minStock`; sin productos → todo a 0; admin y empleado; sin token → 401. Producción OK (30/10).
   - Archivos nuevos: `routes|controllers|services/analytics.*`; registro en `server.js`.
   - Propuesta (con `aggregate`, token obligatorio, los dos roles): `GET /api/analytics/summary` (unidades, valor a coste y PVP, nº con stock bajo) · `/by-category` · `/by-supplier` · `/imports` (por estado y filas con error).
   - Hecho cuando: las respuestas cuadran con un conjunto de datos calculado a mano y sin token → 401.
   - Riesgo: si D5 = baja lógica, filtrar `inactive`. Si J1 tarda, Coral puede empezar con `/summary` (sirve con cualquier dominio de inventario) y dejar el resto.
-- [ ] **T13 — `analytics.yaml` y `users.yaml`**
-  - P0 · `en curso` (`users.yaml` hecho en `feature/users`, especificación OpenAPI validada; falta `analytics.yaml`) · Depende de: T06, T07 · 1 h
+- [x] **T13 — `analytics.yaml` y `users.yaml`**
+  - P0 · `completada` (`users.yaml` en el PR #2; `analytics.yaml` + etiqueta «Analítica» en `swagger.js` en el PR #8, `e34999a` → `bb8231e`, 30/10) · Depende de: T06, T07 · 1 h
   - Hecho cuando: los dos módulos se prueban desde `/api/docs`.
-- [ ] **T15 — Despliegue en Render**
-  - P0 · `pendiente` · Depende de: T14 (y J2) · 2–3 h · **Cambio respecto a la revisión 1:** antes dependía de J3.
+- [x] **T15 — Despliegue en Render**
+  - P0 · `completada` (29/10) · Depende de: T14 (y J2) · 2–3 h · **Cambio respecto a la revisión 1:** antes dependía de J3.
   - Detalle: Web Service (raíz `backend`, `npm install` / `npm start`, variables `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `FRONTEND_URL`, `NODE_ENV`) · Static Site (raíz `frontend`) · auto-deploy desde `main` · Network Access de Atlas · `seed:admin` contra producción (necesita `ADMIN_EMAIL` y `ADMIN_PASSWORD`, en local o como variables temporales).
   - Hecho cuando: en la URL pública funcionan `/api/docs` y el login del Static Site lleva al dashboard. Cada fusión posterior en `main` se redespliega sola.
+  - **Configuración real:**
+    - Web Service `loopstock` → `https://loopstock.onrender.com` · Root Directory `backend` · Build `npm install` · Start `npm start` · variables `NODE_ENV=production`, `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `FRONTEND_URL` (sin `PORT` ni `ADMIN_*`: el admin ya existe en Atlas, misma BD).
+    - Static Site `loopstock-school` → `https://loopstock-school.onrender.com/pages/login.html` · Root Directory vacío · Build `echo ok` · Publish Directory `frontend` (con Root Directory `frontend` daba «Not Found»).
+    - `FRONTEND_URL` (backend) = `https://loopstock-school.onrender.com,http://localhost:5500,http://127.0.0.1:5500`.
+    - Atlas Network Access: `0.0.0.0/0` (Render gratuito no tiene IP fija).
+  - Notas: el plan gratuito duerme el backend tras 15 min (primera petición ~50 s; abrirlo antes de la presentación). La raíz del Static Site sale en blanco hasta T16. Movimientos en blanco (T23, opcional).
 - [ ] **T19 — README real**
   - P1 · `pendiente` · Depende de: T15 · 1,5 h
   - Contenido: instalación, `.env` sin secretos, scripts, endpoints, roles, URL de Render, Swagger, decisiones, cómo crear el admin. Corregir los puertos (pone 3000/5500; reales: 3001 y 5000 o 5500).
@@ -207,15 +219,15 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
 
 - [ ] **J1 — Confirmar el dominio y la analítica con el profesorado** (D1)
   - P0 · `pendiente` · Depende de: — · 0,5 h
-  - Hecho cuando: respuesta por escrito guardada en el canal del equipo. Desbloquea T07.
-- [ ] **J2 — PR `rama_coral → main`** (lo abre Coral, lo revisa Ali)
-  - P0 · `pendiente de integración` (**PR #1 fusionado** el 28/10, `main` = `369bf1d`; smoke test de Coral OK; falta que Ali confirme V-A1 y haga pull + `npm install`) · Depende de: T01, T02, V-A1 · 1 h
+  - Hecho cuando: respuesta por escrito guardada en el canal del equipo. ~~Desbloquea T07~~ T07 se hizo sin esperar (sirve para cualquier dominio de inventario); J1 sigue siendo necesaria para justificar el dominio en J6.
+- [x] **J2 — PR `rama_coral → main`** (lo abre Coral, lo revisa Ali)
+  - P0 · `completada` (PR #1 fusionado el 28/10; ramas desde `main`: Coral `feature/users`, Ali `tarea-alicia`, base `369bf1d`) · Depende de: T01, T02, V-A1 · 1 h
   - Antes de fusionar: `git diff origin/main...origin/rama_coral --stat` revisado juntas (merge directo; `rama_coral` ya contiene `rama_alicia`).
   - Smoke test: el servidor arranca · login OK · `/api/products` sin token → 401 · CSV de prueba importa · `/api/docs` abre.
-  - Hecho cuando: PR fusionado, las dos han hecho `git pull` + `npm install` en `backend/` y han creado su rama desde `main`.
+  - Hecho cuando: PR fusionado (✅ `369bf1d`, 28/10) y cada una ha subido a GitHub una rama creada desde `main` (✅ Coral: `feature/users`; ⏳ Ali). **Se comprueba en GitHub sin preguntar:** el commit base de la rama nueva de Ali debe ser `369bf1d` o posterior. El `npm install` no se verifica aparte: sin él el servidor no arranca (falta Swagger).
 - [ ] **J3 — Integrar el Paso 2** (PR de Ali: T05, T16, T09 · PR de Coral: T06, T14, T17). Cada una revisa el de la otra.
   - P0 · Depende de: esas tareas · Hecho cuando: con admin y empleado, ninguna página da 401 inesperado y el 403 aparece solo donde toca.
-- [ ] **J4 — Integrar el Paso 3** (T07, T08, T10, T11, T12, T13)
+- [ ] **J4 — Integrar el Paso 3** (T07 ✅, T08, T10, T11, T12, T13 ✅)
   - P0 · Hecho cuando: `/api/docs` documenta auth, usuarios, productos, proveedores, importaciones y analítica, y el dashboard muestra las cifras de la API.
 - [ ] **J5 — Pruebas cruzadas de aceptación en Render** (Ali prueba lo de Coral y viceversa)
   - P1 · Depende de: T15, J4 · 2 h cada una · Los fallos se apuntan aquí como tareas nuevas.
@@ -294,3 +306,6 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
 - **28/10 (22:58):** PR #1 fusionado en `main` (`369bf1d`). Smoke test de J2 en la copia de Coral: servidor arranca · login 200 y 401 con credenciales incorrectas · `/api/products` sin token → 401 · CSV → `ImportJob` `failed` 0/8 (esperado: las 3 filas válidas ya existían desde el 25/10; los otros 5 errores coinciden) · `/api/docs` carga. Nota: con `curl`, el CSV hay que enviarlo con `;type=text/csv` (si no, llega como `application/octet-stream` y el filtro de Multer devuelve 400). Decisiones de T06 cerradas.
 - **28/10 (23:00):** V-C1 completada. Rama `feature/users` creada desde `main`; T06 en curso.
 - **28/10 (23:10):** T06 y V-C3 completadas en `feature/users`; `users.yaml` hecho (T13 en curso). Ali ya puede probar T05 con el empleado de demo en Atlas.
+- **29/10 (14:00):** criterio de J2 y V-A1 cambiado para que se pueda comprobar en GitHub sin preguntar a Ali. Estado en GitHub: `rama_alicia` sin cambios desde el 25/10; Ali aún no ha subido una rama desde `main`.
+- **29/10 (19:05):** PR #2 (T06) y PR #4 (T14) fusionados en `main` (`689b4ba`). T15 completada: backend y frontend en Render, login y páginas de Coral OK. V-A1 y J2 cerradas (Ali subió `tarea-alicia`). Revisión de la paginación de Ali (`523351f`, PR #3 sin fusionar): 5 puntos pendientes en T09.
+- **30/10 (17:00):** PR #5 (checklist), #6 (`fix/frontend-api-url`: URLs y token en las páginas de Ali), #7 (T07 analítica) y #8 (T13 `analytics.yaml`) fusionadas → `main` = `bb8231e`. T07 y T13 completadas. T05 pasa a `en curso` (falta logout y Eliminar por rol). T08 y T12 desbloqueadas. Producción: `MONGODB_URI` de Render actualizada tras el cambio de contraseña de Atlas; login y `/api/analytics/summary` 200.

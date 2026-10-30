@@ -13,23 +13,23 @@
 
 ## 0. Resumen
 
-### Estado real (30/10, 17:00)
-- `main` = `bb8231e`: PR #1 (`rama_coral`), #2 (T06), #4 (T14), #5 (esta checklist), #6 (URLs y token en las páginas de productos), #7 (T07 analítica) y #8 (T13 `analytics.yaml`).
+### Estado real (30/10, 17:30)
+- `main` = `684b898`: PR #1 (`rama_coral`), #2 (T06), #4 (T14), #5 (esta checklist), #6 (URLs y token en las páginas de productos), #7 (T07 analítica), #8 (T13 `analytics.yaml`), #9 (checklist) y #10 (T19 README). T17 en la PR de `fix/supplier-collation`.
 - **Desplegado en Render (T15):** API en `https://loopstock.onrender.com` (Swagger en `/api/docs`) y frontend en `https://loopstock-school.onrender.com/pages/login.html`. Login, dashboard, proveedores e importaciones cargan; CORS OK.
-- **Ali:** rama `tarea-alicia` (base `369bf1d`) con T09 solo en el backend (`523351f`), PR #3 abierto y **sin fusionar**. No fusionar hasta corregir lo indicado en T09.
+- **Ali:** rama `tarea-alicia` (`a46aac0`, base antigua `369bf1d`): movimientos, mejoras de productos/dashboard e `index.html`. PR #3 abierto y **sin fusionar**: tiene 7 conflictos con `main`. La rama `integracion/tarea-alicia` (`7100a43`) ya los resuelve y mezcla limpia con `main`; Ali decide cómo integrarla.
 
 ### Recuento
 | | Ali | Coral | Conjuntas |
 |---|---|---|---|
-| Necesarias sin hacer (P0–P1) | 8 | 1 (T19) | 5 |
+| Necesarias sin hacer (P0–P1) | 8 | 0 | 5 |
 | — de ellas bloqueadas | 0 | 0 | 0 |
 | Pendientes de pruebas | 1 (V-A2) | 0 | — |
-| Recomendables (P2) | 1 | 1 | — |
+| Recomendables (P2) | 1 | 0 | — |
 | Opcionales (P3) | 3 | 2 | — |
-| Completadas desde la revisión 1 | 1 (V-A1) | 10 (T01, V-C2, T02, V-C1, T06, V-C3, T14, T15, T07, T13) | 1 (J2) |
+| Completadas desde la revisión 1 | 1 (V-A1) | 12 (T01, V-C2, T02, V-C1, T06, V-C3, T14, T15, T07, T13, T19, T17) | 1 (J2) |
 
 ### Próxima acción
-- **Coral:** verificar Productos y Dashboard en Render tras la PR #6 → T19 (README) → T17. Enviar J1.
+- **Coral:** enviar J1. Después, opcionales (T22a, T21, T23) o apoyo a Ali en J3/J4.
 - **Ali:** `git pull origin main` en `tarea-alicia` → terminar T05 (logout y Eliminar por rol) + T09 (frontend y `/low-stock`) en el mismo PR → T12 → T08 → T16.
 - **Juntas:** J1 (profesorado) y cerrar D4 (formato paginado) y D5 (borrado).
 
@@ -198,14 +198,14 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
     - `FRONTEND_URL` (backend) = `https://loopstock-school.onrender.com,http://localhost:5500,http://127.0.0.1:5500`.
     - Atlas Network Access: `0.0.0.0/0` (Render gratuito no tiene IP fija).
   - Notas: el plan gratuito duerme el backend tras 15 min (primera petición ~50 s; abrirlo antes de la presentación). La raíz del Static Site sale en blanco hasta T16. Movimientos en blanco (T23, opcional).
-- [ ] **T19 — README real**
-  - P1 · `pendiente` · Depende de: T15 · 1,5 h
+- [x] **T19 — README real**
+  - P1 · `completada` (PR #10, `2aa69a0`) · Depende de: T15 · 1,5 h
   - Contenido: instalación, `.env` sin secretos, scripts, endpoints, roles, URL de Render, Swagger, decisiones, cómo crear el admin. Corregir los puertos (pone 3000/5500; reales: 3001 y 5000 o 5500).
   - Hecho cuando: alguien nuevo arranca el proyecto en local solo con el README.
 
 ### 🟨 Recomendables
-- [ ] **T17 — Nombre de proveedor único sin distinguir mayúsculas**
-  - P2 · `pendiente` · Depende de: J2 · 0,5 h
+- [x] **T17 — Nombre de proveedor único sin distinguir mayúsculas**
+  - P2 · `completada` (`8a21749`; índice `name_unico_ci`, `name_1` borrado en Atlas con `node src/scripts/sync-supplier-indexes.js`; probado: «pioneer dj» con «Pioneer DJ» existente → 409) · Depende de: J2 · 0,5 h
   - Archivo: `models/Supplier.js` → índice con `collation: { locale: "es", strength: 2 }`. Puede hacer falta borrar en Atlas el índice `name_1`.
   - Hecho cuando: crear «pioneer» con «Pioneer» existente → 409.
 
@@ -309,3 +309,4 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
 - **29/10 (14:00):** criterio de J2 y V-A1 cambiado para que se pueda comprobar en GitHub sin preguntar a Ali. Estado en GitHub: `rama_alicia` sin cambios desde el 25/10; Ali aún no ha subido una rama desde `main`.
 - **29/10 (19:05):** PR #2 (T06) y PR #4 (T14) fusionados en `main` (`689b4ba`). T15 completada: backend y frontend en Render, login y páginas de Coral OK. V-A1 y J2 cerradas (Ali subió `tarea-alicia`). Revisión de la paginación de Ali (`523351f`, PR #3 sin fusionar): 5 puntos pendientes en T09.
 - **30/10 (17:00):** PR #5 (checklist), #6 (`fix/frontend-api-url`: URLs y token en las páginas de Ali), #7 (T07 analítica) y #8 (T13 `analytics.yaml`) fusionadas → `main` = `bb8231e`. T07 y T13 completadas. T05 pasa a `en curso` (falta logout y Eliminar por rol). T08 y T12 desbloqueadas. Producción: `MONGODB_URI` de Render actualizada tras el cambio de contraseña de Atlas; login y `/api/analytics/summary` 200.
+- **30/10 (17:30):** PR #9 (checklist) y #10 (T19 README) fusionadas → `main` = `684b898`. T17 completada en `fix/supplier-collation` (`8a21749`): índice único `name_unico_ci` (collation `es`, strength 2) ya creado en Atlas; 409 comprobado. `integracion/tarea-alicia` (`7100a43`) mezcla limpia con `main`; la integración del trabajo de Ali la decide ella.

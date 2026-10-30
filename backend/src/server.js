@@ -25,7 +25,6 @@ const importsRoutes = require("./routes/imports.routes");
 const movementsRoutes = require("./routes/movements.routes");
 const usersRoutes = require("./routes/users.routes");
 const swaggerSpec = require("./config/swagger");
-
 const logger = require("./middlewares/logger");
 const noEncontrada = require("./middlewares/noEncontrada");
 const manejarErrores = require("./middlewares/manejarErrores");

@@ -1,4 +1,5 @@
 const numberFormat = new Intl.NumberFormat("es-ES");
+
 const euroFormat = new Intl.NumberFormat("es-ES", {
   style: "currency",
   currency: "EUR"

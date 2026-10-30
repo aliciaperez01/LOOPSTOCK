@@ -229,4 +229,6 @@ function renderRecentMovements(movements) {
   }).join("");
 }
 
-loadDashboard();
+if (protegerPagina()) {
+  loadDashboard();
+}

@@ -30,7 +30,7 @@
 | Completadas desde la revisión 1 | 1 (V-A1) | 12 (T01, V-C2, T02, V-C1, T06, V-C3, T14, T15, T07, T13, T19, T17) | 1 (J2) |
 
 ### Próxima acción
-- **Coral:** probar en Render la fase 1 de T24 y abrir su PR (`feature/validation → main`). Después, opcionales (T21, T22a) o apoyo a Ali.
+- **Coral:** T21 y T22a completadas en `chore/cleanup-repo` (falta comitear/pushear y abrir PR — avisar a Ali por los cambios en `server.js` y `package.json`). Después, probar en Render la fase 1 de T24 y abrir su PR (`feature/validation → main`), o apoyo a Ali.
 - **Ali:** integrar su trabajo en `main` (PR #3 o `integracion/tarea-alicia`) → terminar T05 (logout y Eliminar por rol) + T09 (formato paginado) en el mismo PR → T12 → T08 → T16.
 - **Juntas:** cerrar D4 (formato paginado) y D5 (borrado); fase 2 de T24 (conectar `products`/`movements`) cuando la integración de Ali esté en `main`.
 
@@ -134,7 +134,8 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Riesgo: cambia un campo de `Product` → avisar a Coral (la analítica debe filtrar `inactive`).
 
 ### ⬜ Opcionales
-- [ ] **T21 — Limpiar el repo:** quitar de Git `~$parto de tareas.docx`, `package.json` y `package-lock.json` de la raíz (dependencias instaladas ahí por error), `backend/legacy-mongodb/`, `frontend/js/router.js` (vacío); añadir `*.docx` y `~$*` a `.gitignore`. El `package.json` de la raíz ya causó un fallo en Render («Missing script: start»). · P3 · 0,5 h · Depende de: J2 · Prueba: el backend arranca desde `backend/`.
+- [x] **T21 — Limpiar el repo:** quitar de Git `~$parto de tareas.docx`, `package.json` y `package-lock.json` de la raíz (dependencias instaladas ahí por error), `backend/legacy-mongodb/`, `frontend/js/router.js` (vacío); añadir `*.docx` y `~$*` a `.gitignore`. El `package.json` de la raíz ya causó un fallo en Render («Missing script: start»). · P3 · 0,5 h · Depende de: J2 · Prueba: el backend arranca desde `backend/`.
+  - **Completada (30/10, rama `chore/cleanup-repo`, de Coral):** eliminados del repo. `.gitignore` con `*.docx` y `~$*` verificado con `git check-ignore`. Backend arranca igual tras la limpieza. Falta fusionar a `main`.
 - [ ] **T22b — Jest + Supertest de productos** (409, 400). · P3 · 3–4 h · Depende de: J2
 - [ ] **T23 — Movimientos de stock** (`movements.html` y `movements.js` están vacíos). · P3 · 5–6 h · Depende de: T11
 
@@ -211,7 +212,10 @@ Decisiones técnicas ya cerradas (D1–D13 de `continuidad-loopstock.md`) siguen
   - Hecho cuando: crear «pioneer» con «Pioneer» existente → 409.
 
 ### ⬜ Opcionales
-- [ ] **T22a — Jest + Supertest de auth e importación** (401, 403, 400). · P3 · 3–4 h · Depende de: J2
+- [x] **T22a — Jest + Supertest de auth e importación** (401, 403, 400). · P3 · 3–4 h · Depende de: J2
+  - **Completada (30/10, rama `chore/cleanup-repo`):** 33 tests (`tests/integration/auth.test.js`, `tests/integration/imports.test.js`, `tests/unit/imports.service.test.js`) con `mongodb-memory-server` (Mongo en memoria, no toca Atlas). Todos en verde (33/33).
+  - Cambios necesarios para que funcionara, en archivos compartidos — **avisar a Ali**: `server.js` ya no conecta a la BD ni abre el puerto cuando `NODE_ENV=test` (antes lo hacía "fire-and-forget" y los errores de conexión se perdían en un `process.exit()` sin mensaje); `package.json` con `devDependencies` (`jest`, `supertest`, `mongodb-memory-server`) y `"test": "jest --runInBand"`.
+  - Bug encontrado y arreglado en `src/config/db.js`: el driver de MongoDB (`mongodb@7.7.0`) carga el módulo `os` con un `import()` dinámico para el metadata de conexión; bajo Jest eso falla (`A dynamic import callback was invoked without --experimental-vm-modules`) y el servidor rechaza la conexión con «Missing required sub-document 'driver'». Se arregla pasándole el `os` ya cargado vía `runtimeAdapters: { os }` en las opciones de `mongoose.connect`. No afecta a producción/Atlas.
 - [ ] Token en cookie `httpOnly` en lugar de `localStorage` (D11). · P3 · sin estimar
 - [ ] **T24 — Reto de puntos extra: validación con `express-validator`** (módulo 2, AprenTIC)
   - P3 · `en curso` · Depende de: — · 3–4 h (se encarga Coral entera; Ali no necesita hacer nada de esta tarea)
@@ -321,3 +325,4 @@ J2 (primer merge) · D3/T10 (relación con proveedores) · D4/T09 + T07 (formato
 - **30/10 (17:30):** PR #11 (`fix/supplier-collation`) fusionada → `main` = `d4acbff`.
 - **30/10 (17:35):** J1 respondida por el profesorado: acepta el dominio de inventario y pide ampliar la analítica. Decidido con Ali: el `/low-stock` de analítica se descarta (se queda el de productos, de Ali); T24 nueva (extra, `express-validator`), entera de Coral.
 - **30/10 (17:40–17:54):** T24 fase 1 en `feature/validation`: `middlewares/validar.js`, validators y rutas de `auth`, `users`, `suppliers`, `imports`, `analytics`; `validarId` eliminado de esos controladores; 3 endpoints nuevos de analítica (`top-value`, `suppliers-ranking`, `imports/timeline`) con su `analytics.yaml`. 33 reglas probadas en local sin BD y los casos clave repetidos con curl contra Atlas (login sin body → 400, CIF mal formado → 400, id mal formado → 400, etc.). `validators/products.validator.js` y `validators/movements.validator.js` preparados para la fase 2, sin conectar. Commit y push hechos; falta abrir el PR.
+- **30/10 (18:00–20:24):** T21 completada en `chore/cleanup-repo`: archivos sueltos eliminados, `.gitignore` arreglado. T22a completada en la misma rama: 33 tests de Jest+Supertest para `auth` e `imports` (contra Mongo en memoria). Costó varias vueltas encontrar el motivo real de que todos los tests fallaran al conectar: (1) `server.js` conectaba a la BD "fire-and-forget" y el error se perdía en un `process.exit()` mudo → se arregló para que en test no conecte ni escuche, y sea el propio test quien llama a `connectDB()` con `await`; (2) con el error ya visible, resultó ser un bug real del driver de Mongo (`mongodb@7.7.0`): usa `import('os')` dinámico para el metadata de conexión, que Jest no soporta por defecto y rompe la conexión con «Missing required sub-document 'driver'» — se arregló pasándole `runtimeAdapters: { os }` a mano en `connectDB()`. De paso, se detectó que la ruta de OneDrive de Coral (`...\The Bridge (Fullstack Developer)\...`) rompía los stack traces de Jest por ser demasiado larga para Windows; Coral movió el proyecto a `C:\dev\LOOPSTOCK`. Falta comitear y pushear (avisar a Ali: cambios en `server.js` y `package.json`).

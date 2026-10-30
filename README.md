@@ -1,302 +1,204 @@
 # LoopStock
 
-**Sistema de gestión de inventario para equipos DJ y producción musical.**
+**Gestión de inventario para una tienda de equipos DJ y producción musical.**
 
-LoopStock es una aplicación web diseñada para gestionar el inventario de una tienda de equipos DJ, producción musical y material de estudio. Permite centralizar el catálogo de productos, controlar las existencias, gestionar proveedores y registrar los movimientos de stock.
+API REST (Node.js + Express + MongoDB) con autenticación JWT por roles, importación de productos por CSV, analítica de inventario y documentación Swagger, más un frontend en HTML, CSS y JavaScript sin frameworks.
 
-## Funcionalidades
+## Demo en producción (Render)
 
-### Gestión de productos
-- Crear, consultar, editar y eliminar productos.
-- Buscar productos por nombre, SKU, categoría o proveedor.
-- Filtrar productos por categoría y estado del stock.
-- Consultar productos con stock bajo.
-- Consultar estadísticas del inventario.
-- Paginación de los resultados.
-- Validación de SKU duplicados y datos de productos.
+| Servicio | URL |
+|---|---|
+| Frontend | https://loopstock-school.onrender.com/pages/login.html |
+| API | https://loopstock.onrender.com/api |
+| Swagger | https://loopstock.onrender.com/api/docs |
 
-### Gestión de inventario
-- Registrar entradas y salidas de stock.
-- Actualizar automáticamente las existencias al registrar movimientos.
-- Consultar el historial de movimientos.
-- Evitar salidas que provoquen stock negativo.
-
-### Seguridad y usuarios
-- Autenticación mediante JWT.
-- Control de acceso según el rol del usuario.
-- Diferenciación entre administradores y empleados.
-- Protección de las rutas del backend.
-- Cierre de sesión y protección de páginas privadas.
-
-### Otras funcionalidades
-- Gestión de proveedores.
-- Importación de productos mediante archivos CSV.
-- Dashboard con estadísticas y alertas de inventario.
-- Documentación de la API mediante Swagger (en desarrollo).
+> El plan gratuito de Render duerme el backend: la primera petición puede tardar ~50 s.
+> Entrar siempre por `/pages/login.html`.
 
 ## Tecnologías
 
-### Backend
-- Node.js
-- Express
-- MongoDB
-- Mongoose
-- JSON Web Tokens (JWT)
-- Multer
-- Swagger
+- **Backend:** Node.js, Express 5, MongoDB Atlas, Mongoose 9, JWT (`jsonwebtoken`), `bcryptjs`, Multer, `csv-parse`, Swagger (`swagger-jsdoc`, `swagger-ui-express`).
+- **Frontend:** HTML5, CSS3, JavaScript (fetch + token Bearer).
+- **Despliegue:** Render (Web Service + Static Site) y MongoDB Atlas.
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-
-### Pruebas y despliegue
-- Jest y Supertest (pendientes de completar y verificar).
-- MongoDB Atlas.
-- Render.
-
-## Estructura del proyecto
+## Estructura
 
 ```text
-LoopStock/
+LOOPSTOCK/
 ├── backend/
+│   ├── data/productos-prueba.csv   # CSV de ejemplo para la importación
 │   ├── src/
-│   │   ├── config/
+│   │   ├── config/        # db.js, swagger.js
 │   │   ├── controllers/
-│   │   ├── middlewares/
-│   │   ├── models/
+│   │   ├── docs/          # un .yaml de Swagger por módulo
+│   │   ├── middlewares/   # auth, roles, Multer, errores
+│   │   ├── models/        # User, Product, Supplier, ImportJob
 │   │   ├── routes/
+│   │   ├── scripts/       # seed-admin.js
 │   │   ├── services/
-│   │   └── docs/
+│   │   ├── utils/
+│   │   └── server.js
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
-│   ├── index.html
-│   ├── pages/
-│   ├── css/
-│   ├── js/
-│   └── assets/
-│       └── icons/
-├── data/
-│   └── stock-inicial.csv
-├── docs/
-│   └── decisiones-arquitectura.md
-├── .gitignore
+│   ├── pages/             # login, dashboard, products, product-form, suppliers, imports
+│   ├── js/                # config.js (URL de la API), api.js, auth.js, …
+│   └── css/
+├── CHECKLIST_TRABAJO.md
 └── README.md
 ```
 
-## Categorías de productos
+## Instalación en local
 
-- **Equipos DJ:** controladoras, reproductores, mezcladores y platos.
-- **Producción musical:** sintetizadores, cajas de ritmos, samplers y controladores MIDI.
-- **Estudio y grabación:** interfaces de audio, micrófonos y monitores.
-- **Accesorios:** cables, adaptadores, fundas y flight cases.
+### Requisitos
+- Node.js 20 o superior y npm.
+- Una base de datos MongoDB (Atlas o local).
+- Live Server (extensión de VS Code) para el frontend.
 
-## Roles de usuario
-
-### Administrador
-- Gestión del catálogo de productos.
-- Gestión de proveedores.
-- Operaciones administrativas.
-- Acceso a las funciones restringidas a administradores.
-
-### Empleado
-- Consulta del inventario.
-- Registro de movimientos de stock.
-- Acceso a las funciones permitidas para su rol.
-
-Los permisos se validan en el backend y no solamente en la interfaz.
-
-## Instalación y ejecución
-
-### Requisitos previos
-
-- Node.js.
-- npm.
-- MongoDB local o MongoDB Atlas.
-- Git.
-
-### 1. Clonar el repositorio
+### 1. Clonar e instalar
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd LOOPSTOCK
-```
-
-### 2. Instalar dependencias
-
-```bash
-cd backend
+git clone https://github.com/aliciaperez01/LOOPSTOCK.git
+cd LOOPSTOCK/backend
 npm install
 ```
 
-### 3. Configurar las variables de entorno
+> Todos los comandos `npm` se ejecutan dentro de `backend/`.
 
-Crear un archivo `.env` dentro de `backend/`, utilizando `.env.example` como referencia.
+### 2. Variables de entorno
 
-Ejemplo de configuración:
+Copiar `backend/.env.example` a `backend/.env` y completar:
 
-```env
-PORT=3001
-NODE_ENV=development
-MONGODB_URI=
-JWT_SECRET=
-JWT_EXPIRES_IN=1h
-FRONTEND_URL=http://localhost:5500
-```
+| Variable | Ejemplo / descripción |
+|---|---|
+| `PORT` | `3001` |
+| `NODE_ENV` | `development` (en Render: `production`) |
+| `MONGODB_URI` | Cadena de conexión de Atlas (`mongodb+srv://usuario:contraseña@host/...`) |
+| `JWT_SECRET` | Cadena larga y aleatoria |
+| `JWT_EXPIRES_IN` | `1h` |
+| `FRONTEND_URL` | Orígenes permitidos por CORS, separados por comas y sin barra final: `http://localhost:5500,http://127.0.0.1:5500` |
+| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Datos del primer administrador (contraseña ≥ 8 caracteres) |
 
-Los valores deben adaptarse al entorno de ejecución. No se deben publicar credenciales ni secretos.
+El servidor no arranca sin `MONGODB_URI` ni `JWT_SECRET`, ni en producción sin `FRONTEND_URL`. **No subir nunca el `.env`.**
 
-### 4. Iniciar el backend
-
-Desde la carpeta `backend`, ejecutar el script de inicio definido en `package.json`.
-
-Por ejemplo, si está disponible el script `dev`:
+### 3. Crear el primer administrador
 
 ```bash
-npm run dev
+npm run seed:admin
 ```
 
-### 5. Abrir el frontend
+Es idempotente: si ya existe un usuario con ese email, no crea nada.
 
-Durante el desarrollo se puede utilizar Live Server de Visual Studio Code.
+### 4. Arrancar
 
-La dirección del frontend debe coincidir con la configuración CORS del backend.
+```bash
+npm run dev     # desarrollo, con recarga (node --watch)
+npm start       # producción
+```
+
+API en `http://localhost:3001/api` · Swagger en `http://localhost:3001/api/docs`.
+
+### 5. Frontend
+
+Abrir `frontend/pages/login.html` con Live Server (`http://localhost:5500` o `http://127.0.0.1:5500`).
+`frontend/js/config.js` usa `http://localhost:3001/api` en local y la API de Render en cualquier otro dominio.
+
+## Roles
+
+| Rol | Permisos |
+|---|---|
+| `admin` | Todo: productos (incluido eliminar), proveedores, importaciones CSV y usuarios |
+| `empleado` | Consultar, crear y editar productos; consultar proveedores; analítica |
+
+Los permisos se comprueban en el backend (`verificarToken` + `autorizarRoles`). Ocultar botones en el frontend es solo comodidad.
 
 ## API
 
-Los endpoints están organizados bajo el prefijo `/api`.
+Todas las rutas, salvo `POST /api/auth/login`, requieren la cabecera `Authorization: Bearer <token>`.
+Detalle de peticiones y respuestas en Swagger (`/api/docs`).
 
-| Recurso | Funcionalidad |
-|---|---|
-| `/api/auth` | Autenticación |
-| `/api/products` | Gestión de productos |
-| `/api/suppliers` | Gestión de proveedores |
-| `/api/movements` | Movimientos de inventario |
-| `/api/imports` | Importaciones CSV |
-| `/api/analytics` | Estadísticas y análisis |
+| Método | Ruta | Rol | Descripción |
+|---|---|---|---|
+| POST | `/api/auth/login` | público | Login, devuelve el token JWT |
+| GET | `/api/auth/me` | autenticado | Usuario de la sesión |
+| GET | `/api/products` | admin, empleado | Listado (`?category=` y `?search=`) |
+| GET | `/api/products/low-stock` | admin, empleado | Productos con `quantity <= minStock` |
+| GET | `/api/products/:id` | admin, empleado | Detalle |
+| POST | `/api/products` | admin, empleado | Crear (SKU único) |
+| PUT | `/api/products/:id` | admin, empleado | Editar |
+| DELETE | `/api/products/:id` | admin | Eliminar |
+| GET | `/api/suppliers` | admin, empleado | Listado con búsqueda |
+| GET | `/api/suppliers/:id` | admin, empleado | Detalle |
+| POST | `/api/suppliers` | admin | Crear |
+| PUT | `/api/suppliers/:id` | admin | Editar |
+| DELETE | `/api/suppliers/:id` | admin | Baja lógica |
+| POST | `/api/imports` | admin | Subir CSV (campo `file`) |
+| GET | `/api/imports` | admin | Historial de importaciones |
+| GET | `/api/imports/:id` | admin | Resumen y errores de una importación |
+| GET | `/api/users` | admin | Listado de usuarios |
+| POST | `/api/users` | admin | Crear usuario |
+| DELETE | `/api/users/:id` | admin | Baja lógica (no puede desactivarse a sí mismo) |
+| GET | `/api/analytics/summary` | admin, empleado | Totales: productos, unidades, valor de stock, stock bajo, agotados, categorías |
+| GET | `/api/analytics/by-category` | admin, empleado | Inventario agrupado por categoría |
+| GET | `/api/analytics/by-supplier` | admin, empleado | Inventario agrupado por proveedor |
+| GET | `/api/analytics/imports` | admin, empleado | Importaciones por estado y tasa de éxito |
 
+> Movimientos de stock (`/api/movements`) están en integración (rama `integracion/tarea-alicia`).
 
-## Gestión de productos
+### Ejemplo con curl (Git Bash)
 
-La API de productos permite gestionar el catálogo, consultar existencias y controlar los niveles de stock.
+```bash
+read -s P   # escribir la contraseña (no se muestra) y Enter
+T=$(curl -s -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"admin@loopstock.com\",\"password\":\"$P\"}" \
+  | sed -E 's/.*"token":"([^"]+)".*/\1/')
+curl -s http://localhost:3001/api/analytics/summary -H "Authorization: Bearer $T"
+```
 
-### Endpoints
+## Importación CSV
 
-| Método | Endpoint | Funcionalidad |
+- Subida con Multer en memoria: máximo **2 MB**, solo `.csv` (extensión y MIME). Otro formato → `400`.
+- Separador `;` o `,`, detectado por la cabecera.
+- Columnas: `sku;name;brand;category;quantity;price;cost;minStock;supplier` (ver `backend/data/productos-prueba.csv`).
+- Importación parcial: las filas válidas se insertan y las erróneas (SKU repetido, campos inválidos, proveedor inexistente o inactivo) se guardan en `ImportJob` (máximo 500 errores).
+
+## Despliegue en Render
+
+| | Web Service (API) | Static Site (frontend) |
 |---|---|---|
-| GET | `/api/products` | Listar productos |
-| GET | `/api/products/:id` | Consultar un producto por ID |
-| POST | `/api/products` | Crear un producto |
-| PUT | `/api/products/:id` | Actualizar un producto |
-| DELETE | `/api/products/:id` | Eliminar un producto (administrador) |
-| GET | `/api/products/stats` | Consultar estadísticas |
-| GET | `/api/products/categories` | Obtener categorías |
-| GET | `/api/products/low-stock` | Consultar productos con stock bajo |
+| Root Directory | `backend` | *(vacío)* |
+| Build Command | `npm install` | `echo ok` |
+| Start / Publish | `npm start` | `frontend` |
+| Variables | `NODE_ENV=production`, `MONGODB_URI`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `FRONTEND_URL` | — |
 
-### Filtros y búsqueda
+- Auto-deploy desde `main`.
+- En Atlas → Network Access: permitir `0.0.0.0/0` (Render no tiene IP fija).
+- `FRONTEND_URL` debe incluir la URL del Static Site sin barra final.
 
-El listado de productos permite utilizar los siguientes parámetros:
+## Decisiones técnicas principales
 
-| Parámetro | Funcionalidad |
+- Errores centralizados en un middleware (`manejarErrores`); un duplicado (error 11000) indica el campo afectado.
+- Rutas protegidas a nivel de router y roles por ruta.
+- Proveedores y usuarios con baja lógica; `taxId` de proveedor único.
+- CORS: un origen no permitido no recibe cabeceras (no devuelve 500); peticiones sin `Origin` (curl) permitidas.
+- Analítica con `aggregate` de MongoDB solo sobre productos activos.
+- Token en `localStorage` con escape de HTML en el frontend (mejora futura: cookie `httpOnly`).
+
+## Problemas frecuentes
+
+| Síntoma | Causa |
 |---|---|
-| `search` | Buscar por nombre, SKU, categoría o proveedor |
-| `category` | Filtrar por categoría |
-| `stock=available` | Productos con stock disponible |
-| `stock=low` | Productos con stock bajo |
-| `stock=out` | Productos sin existencias |
-
-Ejemplo:
-
-```http
-GET /api/products?search=Pioneer&stock=available
-```
-
-### Paginación
-
-El listado permite controlar el número de resultados mediante los parámetros `page` y `limit`.
-
-Ejemplo:
-
-```http
-GET /api/products?page=2&limit=5
-```
-
-La respuesta utiliza la siguiente estructura:
-
-```json
-{
-  "items": [],
-  "total": 44,
-  "page": 2,
-  "pages": 9
-}
-```
-
-- `items`: productos de la página actual.
-- `total`: número total de productos que cumplen los filtros.
-- `page`: página actual.
-- `pages`: número total de páginas.
-
-Los valores del ejemplo son ilustrativos.
-
-### Validaciones y respuestas HTTP
-
-La API contempla las siguientes respuestas:
-
-| Código | Significado |
-|---|---|
-| 200 | Operación realizada correctamente |
-| 201 | Producto creado correctamente |
-| 400 | Datos incorrectos o ID no válido |
-| 401 | Falta autenticación o el token no es válido |
-| 403 | Usuario sin permisos suficientes |
-| 404 | Producto no encontrado |
-| 409 | Conflicto por SKU duplicado |
-| 500 | Error interno del servidor |
-
-## Movimientos de inventario
-
-El módulo de movimientos permite registrar operaciones que modifican las existencias de los productos.
-
-Los movimientos contemplan:
-
-- **Entrada:** incrementa la cantidad disponible.
-- **Salida:** reduce la cantidad disponible.
-- Registro del producto afectado.
-- Registro de la cantidad.
-- Asociación del movimiento al usuario que lo realiza.
-- Consulta del historial de movimientos.
-
-El sistema evita que una salida genere un stock negativo.
-
-## Datos iniciales
-
-El archivo `data/stock-inicial.csv` contiene datos ficticios creados por el equipo para probar el catálogo y la importación de productos.
-
-## Despliegue
-
-El despliegue previsto utiliza:
-
-- **Backend:** Render Web Service.
-- **Frontend:** Render Static Site.
-- **Base de datos:** MongoDB Atlas.
-
-Las variables de entorno se configurarán en el entorno de despliegue.
-
-No se dependerá del almacenamiento local de Render para conservar archivos de forma permanente.
+| `bad auth` al arrancar | Contraseña de Atlas desactualizada en `MONGODB_URI` |
+| `Unable to parse … with URL` | `MONGODB_URI` mal pegada (falta la `@` entre contraseña y host) |
+| El backend se queda colgado tras `injected env` | Tu IP no está en Atlas Network Access |
+| Error de CORS en el navegador | La URL de Live Server no está en `FRONTEND_URL` (ojo `localhost` ≠ `127.0.0.1`) |
+| `Missing script: start` en Render | Root Directory no es `backend` |
+| Primera petición muy lenta en Render | El servicio gratuito estaba dormido |
 
 ## Equipo
 
-Proyecto académico desarrollado en equipo por dos integrantes.
+Proyecto académico de The Bridge (Fullstack Developer):
 
-## Estado del proyecto
-
-LoopStock se encuentra en desarrollo.
-
-Las funcionalidades implementadas se prueban durante su desarrollo y otras secciones continúan pendientes de completar, integrar o documentar.
-
-## Licencia
-
-Proyecto académico. La licencia se definirá si se decide distribuirlo públicamente.
-\
+- **Ali** (`aliciaperez01`): catálogo de productos, stock, movimientos y dashboard.
+- **Coral**: autenticación y roles, usuarios, proveedores, importación CSV, analítica, Swagger y despliegue.

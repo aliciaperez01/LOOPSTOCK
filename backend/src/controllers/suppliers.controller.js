@@ -40,19 +40,10 @@ async function desactivar(req, res) {
   });
 }
 
-// VALIDAR ID
-function validarId(req, res, next) {
-  if (!suppliersService.esIdValido(req.params.id)) {
-    throw new AppError("ID de proveedor no válido", 400);
-  }
-  next();
-}
-
 module.exports = {
   listar,
   obtener,
   crear,
   actualizar,
-  desactivar,
-  validarId
+  desactivar
 };

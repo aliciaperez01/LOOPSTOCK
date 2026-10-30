@@ -8,7 +8,6 @@ const supplierSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "El nombre del proveedor es obligatorio"],
-      unique: true,
       trim: true,
       minlength: [2, "El nombre debe tener al menos 2 caracteres"],
       maxlength: [80, "El nombre no puede superar 80 caracteres"]
@@ -52,6 +51,12 @@ const supplierSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
+);
+
+// Nombre único sin distinguir mayúsculas ("Pioneer" = "pioneer")
+supplierSchema.index(
+  { name: 1 },
+  { unique: true, name: "name_unico_ci", collation: { locale: "es", strength: 2 } }
 );
 
 // CIF único solo cuando existe (varios proveedores pueden no tenerlo)

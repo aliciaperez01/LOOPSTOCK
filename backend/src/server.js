@@ -84,13 +84,18 @@ app.use(manejarErrores);
 
 async function startServer() {
   try {
-    await connectDB();
-
-    app.listen(PORT, () => {
-      console.log(
-        `Servidor de Loopstock escuchando en http://localhost:${PORT}`
-      );
-    });
+    // En las pruebas (Jest), ni se conecta ni se abre un puerto real: es el
+    // propio test (tests/helpers/db.js) quien conecta a su Mongo en memoria
+    // y espera a que termine, para que un fallo de conexión se vea en el
+    // test y no se pierda en esta función (que nadie espera).
+    if (process.env.NODE_ENV !== "test") {
+      await connectDB();
+      app.listen(PORT, () => {
+        console.log(
+          `Servidor de Loopstock escuchando en http://localhost:${PORT}`
+        );
+      });
+    }
   } catch (error) {
     console.error("No se pudo iniciar el servidor:", error.message);
     process.exit(1);

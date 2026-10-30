@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const os = require("os");
 require("dotenv").config();
 
 async function connectDB() {
@@ -10,7 +11,17 @@ async function connectDB() {
     }
 
     await mongoose.connect(uri, {
-      dbName: "loopstock"
+      dbName: "loopstock",
+      appName: "loopstock-api",
+      // El driver de MongoDB carga el módulo "os" con un import() dinámico
+      // para construir el metadata de la conexión. Bajo Jest (sin el flag
+      // --experimental-vm-modules) ese import() dinámico falla con
+      // "A dynamic import callback was invoked without --experimental-vm-modules",
+      // y el metadata queda incompleto → el servidor rechaza la conexión con
+      // "Missing required sub-document 'driver' in the client metadata
+      // document". Se le pasa el módulo "os" ya cargado para que no necesite
+      // hacer el import() dinámico.
+      runtimeAdapters: { os }
     });
 
     console.log("Conectado a MongoDB Atlas mediante Mongoose");

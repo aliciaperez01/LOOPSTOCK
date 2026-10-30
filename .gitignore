@@ -47,3 +47,7 @@ build/
 *.pem
 *.key
 *.crt
+
+# Documentos de planificación (no forman parte del entregable)
+*.docx
+~$*

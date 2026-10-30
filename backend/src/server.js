@@ -75,6 +75,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/movements", movementsRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
+
 // Documentación interactiva (Swagger UI) y especificación en JSON
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.get("/api/docs.json", (req, res) => res.json(swaggerSpec));

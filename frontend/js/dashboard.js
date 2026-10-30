@@ -87,6 +87,7 @@ async function loadDashboard() {
 
   try {
     const movementsData = await apiFetch("/movements?page=1&limit=5");
+
     const movements = Array.isArray(movementsData)
       ? movementsData
       : movementsData?.items;
@@ -207,6 +208,7 @@ function renderRecentMovements(movements) {
 
   container.innerHTML = movements.map(movement => {
     const entrada = movement.type === "entrada";
+
     const date = movement.createdAt
       ? new Date(movement.createdAt).toLocaleString("es-ES")
       : "Fecha no disponible";

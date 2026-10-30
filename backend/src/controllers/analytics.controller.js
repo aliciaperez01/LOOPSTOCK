@@ -24,4 +24,32 @@ async function importaciones(req, res) {
   res.status(200).json(datos);
 }
 
-module.exports = { resumen, porCategoria, porProveedor, importaciones };
+// PRODUCTOS CON MÁS VALOR EN STOCK (?limit=, por defecto 10)
+async function topValue(req, res) {
+  const limit = req.query.limit ? Number(req.query.limit) : 10;
+  const datos = await analyticsService.topValue(limit);
+  res.status(200).json(datos);
+}
+
+// RANKING DE PROVEEDORES POR VALOR EN STOCK
+async function suppliersRanking(req, res) {
+  const datos = await analyticsService.suppliersRanking();
+  res.status(200).json(datos);
+}
+
+// IMPORTACIONES POR DÍA (?days=, por defecto 30)
+async function importsTimeline(req, res) {
+  const days = req.query.days ? Number(req.query.days) : 30;
+  const datos = await analyticsService.importsTimeline(days);
+  res.status(200).json(datos);
+}
+
+module.exports = {
+  resumen,
+  porCategoria,
+  porProveedor,
+  importaciones,
+  topValue,
+  suppliersRanking,
+  importsTimeline
+};

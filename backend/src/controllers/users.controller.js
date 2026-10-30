@@ -26,17 +26,8 @@ async function desactivar(req, res) {
   });
 }
 
-// VALIDAR ID
-function validarId(req, res, next) {
-  if (!usersService.esIdValido(req.params.id)) {
-    throw new AppError("ID de usuario no válido", 400);
-  }
-  next();
-}
-
 module.exports = {
   listar,
   crear,
-  desactivar,
-  validarId
+  desactivar
 };

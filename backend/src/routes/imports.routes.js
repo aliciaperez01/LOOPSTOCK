@@ -5,6 +5,8 @@ const {
   verificarToken,
   autorizarRoles
 } = require("../middlewares/auth.middleware");
+const validar = require("../middlewares/validar");
+const { reglasId } = require("../validators/imports.validator");
 
 const importsRouter = Router();
 
@@ -18,6 +20,6 @@ importsRouter.post("/", subirCsv("file"), imports.importar);
 importsRouter.get("/", imports.listar);
 
 // GET /api/imports/:id - Detalle con errores por fila
-importsRouter.get("/:id", imports.validarId, imports.obtener);
+importsRouter.get("/:id", reglasId, validar, imports.obtener);
 
 module.exports = importsRouter;

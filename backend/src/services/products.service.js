@@ -1,6 +1,7 @@
 
 const mongoose = require("mongoose");
 const Product = require("../models/Product.js");
+const Movement = require("../models/Movement.js");
 
 // LISTAR, BUSCAR, FILTRAR Y PAGINAR PRODUCTOS
 async function listar(filtros = {}) {
@@ -189,9 +190,27 @@ async function actualizar(id, datos) {
 }
 
 // ELIMINAR PRODUCTO
-// La comprobación de movimientos se añadirá cuando confirmemos
-// el modelo y la colección donde se guardan.
+// No permite eliminar productos que tengan movimientos asociados
 async function eliminar(id) {
+  const producto = await Product.findById(id);
+
+  if (!producto) {
+    return null;
+  }
+
+  const tieneMovimientos = await Movement.exists({
+    product: producto._id
+  });
+
+  if (tieneMovimientos) {
+    const error = new Error(
+      "No se puede eliminar este producto porque tiene movimientos asociados."
+    );
+
+    error.status = 409;
+    throw error;
+  }
+
   return Product.findByIdAndDelete(id);
 }
 

@@ -7,11 +7,35 @@ async function listar(req, res, next) {
     const filtros = {
       category: req.query.category,
       search: req.query.search,
+      stock: req.query.stock,
       page: req.query.page,
       limit: req.query.limit
     };
 
     const resultado = await productsService.listar(filtros);
+
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// OBTENER ESTADÍSTICAS GENERALES
+async function estadisticas(req, res, next) {
+  try {
+    const resultado = await productsService.obtenerEstadisticas();
+
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// OBTENER CATEGORÍAS
+async function categorias(req, res, next) {
+  try {
+    const resultado = await productsService.obtenerCategorias();
+
     res.status(200).json(resultado);
   } catch (error) {
     next(error);
@@ -21,11 +45,12 @@ async function listar(req, res, next) {
 // LISTAR PRODUCTOS CON STOCK BAJO
 async function listarBajoStock(req, res, next) {
   try {
-    const productos = await productsService.listar({
-      lowStock: true
+    const resultado = await productsService.listar({
+      lowStock: true,
+      limit: 100
     });
 
-    res.status(200).json(productos);
+    res.status(200).json(resultado.items);
   } catch (error) {
     next(error);
   }
@@ -37,7 +62,9 @@ async function obtener(req, res, next) {
     const producto = await productsService.buscarPorId(req.params.id);
 
     if (!producto) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({
+        error: "Producto no encontrado"
+      });
     }
 
     res.status(200).json(producto);
@@ -46,11 +73,11 @@ async function obtener(req, res, next) {
   }
 }
 
-
- // CREAR PRODUCTO
+// CREAR PRODUCTO
 async function crear(req, res, next) {
   try {
     const producto = await productsService.crear(req.body);
+
     res.status(201).json(producto);
   } catch (error) {
     next(error);
@@ -66,7 +93,9 @@ async function actualizar(req, res, next) {
     );
 
     if (!producto) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({
+        error: "Producto no encontrado"
+      });
     }
 
     res.status(200).json(producto);
@@ -75,14 +104,15 @@ async function actualizar(req, res, next) {
   }
 }
 
-
 // ELIMINAR PRODUCTO
 async function eliminar(req, res, next) {
   try {
     const producto = await productsService.eliminar(req.params.id);
 
     if (!producto) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({
+        error: "Producto no encontrado"
+      });
     }
 
     res.status(200).json({
@@ -108,6 +138,8 @@ function validarId(req, res, next) {
 module.exports = {
   listar,
   listarBajoStock,
+  estadisticas,
+  categorias,
   obtener,
   crear,
   actualizar,

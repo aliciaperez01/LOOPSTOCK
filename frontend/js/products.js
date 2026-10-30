@@ -1,7 +1,5 @@
 
-const API_URL = "http://localhost:3001/api/products";
-
-// Elementos de la página
+ // Elementos de la página
 const productsTable = document.getElementById("products-table");
 const productCount = document.getElementById("product-count");
 const productSearch = document.getElementById("product-search");
@@ -12,70 +10,87 @@ const message = document.getElementById("message");
 const refreshButton = document.getElementById("refresh-button");
 const addProductButton = document.getElementById("add-product-button");
 
-// Elementos de la ventana modal
+// Elementos del modal
 const productModal = document.getElementById("product-modal");
 const productModalFrame = document.getElementById("product-modal-frame");
 const closeProductModalButton = document.getElementById("close-product-modal");
 
-// Tarjetas de estadísticas
+// Estadísticas
 const statProducts = document.getElementById("stat-products");
 const statUnits = document.getElementById("stat-units");
 const statValue = document.getElementById("stat-value");
 const statLowStock = document.getElementById("stat-low-stock");
 
-// Datos
 let products = [];
+
+let currentPage = 1;
+let totalPages = 1;
+let totalProducts = 0;
+const pageSize = 10;
+
+// Elementos de paginación
+const prevPageButton = document.getElementById("prev-page");
+const nextPageButton = document.getElementById("next-page");
+const pageInfo = document.getElementById("page-info");
+
+const numberFormatter = new Intl.NumberFormat("es-ES");
 
 const euroFormatter = new Intl.NumberFormat("es-ES", {
   style: "currency",
   currency: "EUR"
 });
 
-const numberFormatter = new Intl.NumberFormat("es-ES");
-
-// =========================================
-// CARGAR PRODUCTOS DESDE LA API
-// =========================================
 
 async function loadProducts() {
   message.textContent = "";
-
-  productsTable.innerHTML = `
-    <tr>
-      <td colspan="8">Cargando productos...</td>
-    </tr>
-  `;
+  productsTable.innerHTML =
+    `<tr><td colspan="8">Cargando productos...</td></tr>`;
 
   refreshButton.disabled = true;
 
   try {
-    const response = await fetch(API_URL);
+    const params = new URLSearchParams({
+      page: currentPage,
+      limit: pageSize
+    });
 
-    if (!response.ok) {
-      throw new Error("No se pudieron obtener los productos.");
-    }
+    const search = productSearch.value.trim();
+    const category = categoryFilter.value;
+    const stock = stockFilter.value;
 
-    const data = await response.json();
+    if (search) params.set("search", search);
+    if (category) params.set("category", category);
+    if (stock) params.set("stock", stock);
 
-    if (!Array.isArray(data)) {
+    const data = await apiFetch(`/products?${params.toString()}`);
+
+    const lista = Array.isArray(data) ? data : data?.items;
+
+    if (!Array.isArray(lista)) {
       throw new Error("La API no ha devuelto una lista válida.");
     }
 
-    products = data;
+    products = lista;
 
-    updateCategoryOptions();
-    updateStatistics();
+    if (!Array.isArray(data)) {
+      currentPage = Number(data.page) || currentPage;
+      totalPages = Number(data.pages) || 1;
+      totalProducts = Number(data.total) || 0;
+    } else {
+      totalProducts = lista.length;
+      totalPages = 1;
+      currentPage = 1;
+    }
+
+    await updateCategoryOptions();
+    await updateStatistics();
+
     renderProducts();
+    updatePagination();
 
   } catch (error) {
-    productsTable.innerHTML = `
-      <tr>
-        <td colspan="8">
-          No se pudieron cargar los productos.
-          Comprueba que el backend está funcionando.
-        </td>
-      </tr>
-    `;
+    productsTable.innerHTML =
+      `<tr><td colspan="8">No se pudieron cargar los productos.</td></tr>`;
 
     productCount.textContent = "Error al cargar los productos";
     message.textContent = error.message;
@@ -87,194 +102,132 @@ async function loadProducts() {
 
   } finally {
     refreshButton.disabled = false;
+    updatePagination();
   }
 }
 
-// =========================================
-// ESTADO DEL STOCK
-// =========================================
+function updatePagination() {
+  if (pageInfo) {
+    pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+  }
+
+  if (prevPageButton) {
+    prevPageButton.disabled = currentPage <= 1;
+  }
+
+  if (nextPageButton) {
+    nextPageButton.disabled = currentPage >= totalPages;
+  }
+}
 
 function getStockStatus(product) {
   const quantity = Number(product.quantity ?? 0);
   const minimum = Number(product.minStock ?? 0);
 
-  if (quantity <= 0) {
-    return "out";
-  }
-
-  if (quantity <= minimum) {
-    return "low";
-  }
-
+  if (quantity <= 0) return "out";
+  if (quantity <= minimum) return "low";
   return "available";
 }
 
 function getStockLabel(status) {
-  const labels = {
+  return ({
     available: "Disponible",
     low: "Stock bajo",
     out: "Agotado"
-  };
-
-  return labels[status] || "Sin estado";
+  })[status] || "Sin estado";
 }
 
 function getStockClass(status) {
-  const classes = {
+  return ({
     available: "badge-success",
     low: "badge-warning",
     out: "badge-danger"
-  };
-
-  return classes[status] || "";
+  })[status] || "";
 }
 
-// =========================================
-// ACTUALIZAR ESTADÍSTICAS
-// =========================================
 
-function updateStatistics() {
-  const totalProducts = products.length;
+async function updateStatistics() {
+  try {
+    const stats = await apiFetch("/products/stats");
 
-  const totalUnits = products.reduce((total, product) => {
-    return total + Math.max(
-      0,
-      Number(product.quantity) || 0
-    );
-  }, 0);
-
-  const inventoryValue = products.reduce((total, product) => {
-    const quantity = Math.max(
-      0,
-      Number(product.quantity) || 0
+    statProducts.textContent = numberFormatter.format(
+      stats.totalProducts
     );
 
-    const rawPrice = product.price;
-    const price = Number(rawPrice);
+    statUnits.textContent = numberFormatter.format(
+      stats.totalUnits
+    );
 
-    if (
-      rawPrice === null ||
-      rawPrice === undefined ||
-      String(rawPrice).trim() === "" ||
-      !Number.isFinite(price) ||
-      price < 0
-    ) {
-      return total;
-    }
+    statValue.textContent = euroFormatter.format(
+      stats.inventoryValue
+    );
 
-    return total + quantity * price;
-  }, 0);
+    statLowStock.textContent = numberFormatter.format(
+      stats.lowStock
+    );
+  } catch (error) {
+    console.error("Error al cargar estadísticas:", error);
 
-  const productsNeedingAttention = products.filter(product => {
-    return getStockStatus(product) !== "available";
-  }).length;
-
-  statProducts.textContent =
-    numberFormatter.format(totalProducts);
-
-  statUnits.textContent =
-    numberFormatter.format(totalUnits);
-
-  statValue.textContent =
-    euroFormatter.format(inventoryValue);
-
-  statLowStock.textContent =
-    numberFormatter.format(productsNeedingAttention);
-}
-
-// =========================================
-// FILTRO DE CATEGORÍAS
-// =========================================
-
-function updateCategoryOptions() {
-  const selectedCategory = categoryFilter.value;
-
-  const categories = [
-    ...new Set(
-      products
-        .map(product => String(product.category ?? "").trim())
-        .filter(Boolean)
-    )
-  ].sort((a, b) => a.localeCompare(b, "es"));
-
-  categoryFilter.innerHTML = `
-    <option value="">Todas las categorías</option>
-    ${categories.map(category => `
-      <option value="${escapeHTML(category)}">
-        ${escapeHTML(category)}
-      </option>
-    `).join("")}
-  `;
-
-  if (categories.includes(selectedCategory)) {
-    categoryFilter.value = selectedCategory;
+    statProducts.textContent = "—";
+    statUnits.textContent = "—";
+    statValue.textContent = "—";
+    statLowStock.textContent = "—";
   }
 }
 
-// =========================================
-// MOSTRAR Y FILTRAR PRODUCTOS
-// =========================================
+
+async function updateCategoryOptions() {
+  const selectedCategory = categoryFilter.value;
+
+  try {
+    const categories = await apiFetch("/products/categories");
+
+    if (!Array.isArray(categories)) {
+      throw new Error("No se pudieron obtener las categorías.");
+    }
+
+    categoryFilter.innerHTML = `
+      <option value="">Todas las categorías</option>
+      ${categories
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, "es"))
+        .map(category => `
+          <option value="${escapeHTML(category)}">${escapeHTML(category)}</option>
+        `).join("")}
+    `;
+
+    categoryFilter.value = selectedCategory;
+
+  } catch (error) {
+    console.error("Error al cargar categorías:", error);
+  }
+}
 
 function renderProducts() {
-  const search = productSearch.value.trim().toLowerCase();
-  const selectedCategory = categoryFilter.value;
-  const selectedStock = stockFilter.value;
-
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = [
-      product.name,
-      product.sku,
-      product.category,
-      product.supplier
-    ].some(value =>
-      String(value ?? "").toLowerCase().includes(search)
-    );
-
-    const matchesCategory =
-      !selectedCategory ||
-      String(product.category ?? "") === selectedCategory;
-
-    const matchesStock =
-      !selectedStock ||
-      getStockStatus(product) === selectedStock;
-
-    return matchesSearch && matchesCategory && matchesStock;
-  });
-
   productCount.textContent =
-    `${filteredProducts.length} de ${products.length} producto(s)`;
+    `${numberFormatter.format(totalProducts)} producto(s) encontrado(s)`;
 
-  if (filteredProducts.length === 0) {
+  if (products.length === 0) {
     productsTable.innerHTML = `
-      <tr>
-        <td colspan="8">
-          No se encontraron productos con estos filtros.
-        </td>
-      </tr>
+      <tr><td colspan="8">No se encontraron productos con estos filtros.</td></tr>
     `;
     return;
   }
 
-  productsTable.innerHTML = filteredProducts.map(product => {
+  productsTable.innerHTML = products.map(product => {
     const quantity = Number(product.quantity ?? 0);
     const status = getStockStatus(product);
-
-    const rawPrice = product.price;
-    const numericPrice = Number(rawPrice);
+    const numericPrice = Number(product.price);
 
     const hasValidPrice =
-      rawPrice !== null &&
-      rawPrice !== undefined &&
-      String(rawPrice).trim() !== "" &&
+      product.price !== null &&
+      product.price !== undefined &&
+      String(product.price).trim() !== "" &&
       Number.isFinite(numericPrice) &&
       numericPrice >= 0;
 
-    const price = hasValidPrice
-      ? euroFormatter.format(numericPrice)
-      : "—";
-
-    const editUrl =
-      `product-form.html?id=${encodeURIComponent(product._id)}`;
+    const price = hasValidPrice ? euroFormatter.format(numericPrice) : "—";
+    const editUrl = `product-form.html?id=${encodeURIComponent(product._id)}`;
 
     return `
       <tr>
@@ -285,26 +238,15 @@ function renderProducts() {
         <td>${price}</td>
         <td>${escapeHTML(product.supplier || "—")}</td>
         <td>
-          <span class="badge ${getStockClass(status)}">
-            ${getStockLabel(status)}
-          </span>
+          <span class="badge ${getStockClass(status)}">${getStockLabel(status)}</span>
         </td>
         <td>
           <div class="product-actions">
-            <a
-              href="${editUrl}"
-              class="btn btn-secondary"
-              aria-label="Editar ${escapeHTML(product.name)}"
-            >
-              ✎ Editar
-            </a>
-
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-delete-id="${escapeHTML(product._id)}"
-              data-delete-name="${escapeHTML(product.name)}"
-            >
+            <a href="${editUrl}" class="btn btn-secondary"
+               aria-label="Editar ${escapeHTML(product.name)}">✎ Editar</a>
+            <button type="button" class="btn btn-danger"
+                    data-delete-id="${escapeHTML(product._id)}"
+                    data-delete-name="${escapeHTML(product.name)}">
               🗑 Eliminar
             </button>
           </div>
@@ -313,10 +255,6 @@ function renderProducts() {
     `;
   }).join("");
 }
-
-// =========================================
-// EVITAR INYECCIÓN DE HTML
-// =========================================
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -328,74 +266,48 @@ function escapeHTML(value) {
   })[character]);
 }
 
-// =========================================
-// ABRIR Y CERRAR EL MODAL
-// =========================================
-
 function openProductModal() {
-  if (!productModal || !productModalFrame) {
-    return;
-  }
+  if (!productModal || !productModalFrame) return;
 
   productModal.hidden = false;
   document.body.style.overflow = "hidden";
-
-  // Cargar el formulario existente dentro del modal.
   productModalFrame.src = "product-form.html?modal=1";
 
-  closeProductModalButton.focus();
+  if (closeProductModalButton) closeProductModalButton.focus();
 }
 
 function closeProductModal() {
-  if (!productModal || !productModalFrame) {
-    return;
-  }
+  if (!productModal || !productModalFrame) return;
 
   productModal.hidden = true;
   productModalFrame.src = "about:blank";
   document.body.style.overflow = "";
 
-  if (addProductButton) {
-    addProductButton.focus();
-  }
+  if (addProductButton) addProductButton.focus();
 }
 
-// Abrir al pulsar Añadir producto.
 if (addProductButton) {
   addProductButton.addEventListener("click", openProductModal);
 }
 
-// Cerrar al pulsar la X.
 if (closeProductModalButton) {
   closeProductModalButton.addEventListener("click", closeProductModal);
 }
 
-// Cerrar al pulsar fuera de la ventana.
 if (productModal) {
   productModal.addEventListener("click", event => {
-    if (event.target === productModal) {
-      closeProductModal();
-    }
+    if (event.target === productModal) closeProductModal();
   });
 }
 
-// Cerrar con Escape.
 document.addEventListener("keydown", event => {
-  if (
-    event.key === "Escape" &&
-    productModal &&
-    !productModal.hidden
-  ) {
+  if (event.key === "Escape" && productModal && !productModal.hidden) {
     closeProductModal();
   }
 });
 
-// Recibir avisos del formulario cargado en el iframe.
 window.addEventListener("message", event => {
-  // Solo aceptar mensajes de la misma página de origen.
-  if (event.origin !== window.location.origin) {
-    return;
-  }
+  if (event.origin !== window.location.origin) return;
 
   if (event.data?.type === "product-form-close") {
     closeProductModal();
@@ -407,82 +319,92 @@ window.addEventListener("message", event => {
   }
 });
 
-// =========================================
-// EVENTOS DE BÚSQUEDA Y FILTROS
-// =========================================
+productSearch.addEventListener("input", () => {
+  currentPage = 1;
+  loadProducts();
+});
 
-productSearch.addEventListener("input", renderProducts);
+categoryFilter.addEventListener("change", () => {
+  currentPage = 1;
+  loadProducts();
+});
 
-categoryFilter.addEventListener("change", renderProducts);
+stockFilter.addEventListener("change", () => {
+  currentPage = 1;
+  loadProducts();
+});
 
-stockFilter.addEventListener("change", renderProducts);
+// Actualizar productos
+refreshButton.addEventListener("click", () => {
+  loadProducts();
+});
 
-refreshButton.addEventListener("click", loadProducts);
+
+// Paginación
+function scrollToProducts() {
+  const productSection = productsTable.closest(".product-list-card");
+
+  if (productSection) {
+    productSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+}
+
+prevPageButton.addEventListener("click", async () => {
+  if (currentPage > 1) {
+    currentPage--;
+    await loadProducts();
+    scrollToProducts();
+  }
+});
+
+nextPageButton.addEventListener("click", async () => {
+  if (currentPage < totalPages) {
+    currentPage++;
+    await loadProducts();
+    scrollToProducts();
+  }
+});
+
 
 clearFiltersButton.addEventListener("click", () => {
   productSearch.value = "";
   categoryFilter.value = "";
   stockFilter.value = "";
-
-  renderProducts();
+  currentPage = 1;
+  loadProducts();
 });
-
-// =========================================
-// ELIMINAR PRODUCTOS
-// =========================================
 
 productsTable.addEventListener("click", async event => {
   const button = event.target.closest("[data-delete-id]");
-
-  if (!button) {
-    return;
-  }
+  if (!button) return;
 
   const productId = button.dataset.deleteId;
   const productName = button.dataset.deleteName;
 
   const confirmed = window.confirm(
-    `¿Seguro que quieres eliminar "${productName}"? ` +
-    "Esta acción no se puede deshacer."
+    `¿Seguro que quieres eliminar "${productName}"? Esta acción no se puede deshacer.`
   );
 
-  if (!confirmed) {
-    return;
-  }
+  if (!confirmed) return;
 
   button.disabled = true;
   button.textContent = "Eliminando...";
 
   try {
-    const response = await fetch(
-      `${API_URL}/${encodeURIComponent(productId)}`,
-      { method: "DELETE" }
-    );
-
-    if (!response.ok) {
-      const result = await response.json().catch(() => ({}));
-
-      throw new Error(
-        result.message ||
-        result.error ||
-        "No se pudo eliminar el producto."
-      );
-    }
+    await apiFetch(`/products/${encodeURIComponent(productId)}`, {
+      method: "DELETE"
+    });
 
     message.textContent = "Producto eliminado correctamente.";
-
     await loadProducts();
-
   } catch (error) {
     message.textContent = error.message;
-
     button.disabled = false;
     button.textContent = "🗑 Eliminar";
   }
 });
-
-// =========================================
-// INICIAR LA PÁGINA
-// =========================================
 
 loadProducts();

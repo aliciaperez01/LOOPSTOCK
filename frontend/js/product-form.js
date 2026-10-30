@@ -1,6 +1,3 @@
-
-const API_URL = "http://localhost:3001/api/products";
-
 const form = document.getElementById("product-form");
 const formMessage = document.getElementById("form-message");
 const saveButton = document.getElementById("save-button");
@@ -16,14 +13,6 @@ function notifyParent(type) {
 }
 
 if (isModal) document.body.classList.add("modal-form");
-
-async function readResponse(response) {
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(data.message || data.error || "Ha ocurrido un error.");
-  }
-  return data;
-}
 
 function populateCategories(products, selectedCategory = "") {
   const categorySelect = form.elements.namedItem("category");
@@ -59,8 +48,8 @@ function populateCategories(products, selectedCategory = "") {
 }
 
 async function loadCategories(selectedCategory = "") {
-  const response = await fetch(API_URL);
-  const products = await readResponse(response);
+  const data = await apiFetch("/products");
+  const products = Array.isArray(data) ? data : data?.items;
 
   if (!Array.isArray(products)) {
     throw new Error("La API no ha devuelto una lista válida.");
@@ -77,8 +66,8 @@ async function loadProduct() {
   formMessage.textContent = "Cargando datos del producto...";
 
   try {
-    const response = await fetch(API_URL);
-    const products = await readResponse(response);
+    const data = await apiFetch("/products");
+    const products = Array.isArray(data) ? data : data?.items;
 
     if (!Array.isArray(products)) {
       throw new Error("La API no ha devuelto una lista válida.");
@@ -165,16 +154,15 @@ form.addEventListener("submit", async event => {
   try {
     const isEditing = Boolean(productId);
 
-    const response = await fetch(
-      isEditing ? `${API_URL}/${encodeURIComponent(productId)}` : API_URL,
+    await apiFetch(
+      isEditing
+        ? `/products/${encodeURIComponent(productId)}`
+        : "/products",
       {
         method: isEditing ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product)
+        body: product
       }
     );
-
-    await readResponse(response);
 
     formMessage.textContent = isEditing
       ? "¡Producto actualizado correctamente!"
@@ -210,4 +198,3 @@ async function initializeForm() {
 }
 
 initializeForm();
-

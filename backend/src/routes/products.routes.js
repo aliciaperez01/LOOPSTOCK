@@ -1,5 +1,7 @@
+
 const { Router } = require("express");
 const products = require("../controllers/products.controller.js");
+
 const {
   verificarToken,
   autorizarRoles
@@ -7,17 +9,23 @@ const {
 
 const productsRouter = Router();
 
-// Todas las rutas de productos exigen estar autenticado
+// Todas las rutas de productos exigen autenticación
 productsRouter.use(verificarToken);
 
 // Roles con acceso a la gestión de productos
 const todosLosRoles = autorizarRoles("admin", "empleado");
 const soloAdmin = autorizarRoles("admin");
 
+// GET /api/products/stats - Estadísticas generales
+productsRouter.get("/stats", todosLosRoles, products.estadisticas);
+
+// GET /api/products/categories - Categorías disponibles
+productsRouter.get("/categories", todosLosRoles, products.categorias);
+
 // GET /api/products/low-stock - Productos con stock bajo
 productsRouter.get("/low-stock", todosLosRoles, products.listarBajoStock);
 
-// GET /api/products - Listar y filtrar productos
+// GET /api/products - Listar, buscar, filtrar y paginar
 productsRouter.get("/", todosLosRoles, products.listar);
 
 // GET /api/products/:id - Obtener producto por ID

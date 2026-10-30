@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movimientos | Loopstock</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/movements.css">
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="menu-close" id="menu-close"
+        aria-label="Cerrar menú">✕</button>
+
+      <a href="dashboard.html" class="brand">
+        <span class="brand-name">▦ LOOPSTOCK</span>
+      </a>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="products.html" class="nav-link">Productos</a>
+        <a href="suppliers.html" class="nav-link">Proveedores</a>
+        <a href="movements.html" class="nav-link active">Movimientos</a>
+        <a href="imports.html" class="nav-link">Importaciones</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="menu-toggle" id="menu-toggle"
+            aria-label="Abrir menú" aria-expanded="false">☰</button>
+
+          <div>
+            <h1>Movimientos</h1>
+            <p>Controla las entradas y salidas de tu inventario.</p>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="theme-toggle"
+          aria-label="Cambiar a modo oscuro">
+          <span id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+      </header>
+
+      <div class="page-content">
+
+        <section class="page-header">
+          <div>
+            <h2>Control de inventario</h2>
+            <p>Registra cada cambio de stock y consulta su historial.</p>
+          </div>
+        </section>
+
+        <!-- FORMULARIO DE MOVIMIENTO -->
+        <section class="movement-form-card card">
+
+          <div class="movement-section-heading">
+            <div>
+              <span class="movement-eyebrow">NUEVO REGISTRO</span>
+              <h2>Registrar movimiento</h2>
+              <p>Selecciona el producto y las unidades que quieres mover.</p>
+            </div>
+            <span class="movement-heading-icon" aria-hidden="true">↕</span>
+          </div>
+
+          <form id="movement-form">
+
+            <div class="movement-type-selector">
+              <label class="movement-type-option movement-entry">
+                <input type="radio" name="type" value="entrada" checked>
+                <span class="movement-type-content">
+                  <span class="movement-type-icon">↓</span>
+                  <span>
+                    <strong>Entrada</strong>
+                    <small>Añadir unidades</small>
+                  </span>
+                </span>
+              </label>
+
+              <label class="movement-type-option movement-exit">
+                <input type="radio" name="type" value="salida">
+                <span class="movement-type-content">
+                  <span class="movement-type-icon">↑</span>
+                  <span>
+                    <strong>Salida</strong>
+                    <small>Retirar unidades</small>
+                  </span>
+                </span>
+              </label>
+            </div>
+
+            <div class="movement-form-grid">
+
+              <div class="form-group">
+                <label for="movement-product">Producto</label>
+                <select id="movement-product" required>
+                  <option value="">Cargando productos...</option>
+                </select>
+                <small id="product-stock-info" class="field-help">
+                  Selecciona un producto para consultar su stock.
+                </small>
+              </div>
+
+              <div class="form-group">
+                <label for="movement-quantity">Cantidad de unidades</label>
+                <input
+                  type="number"
+                  id="movement-quantity"
+                  min="1"
+                  step="1"
+                  required
+                  placeholder="Ej. 5"
+                >
+              </div>
+
+              <div class="form-group movement-notes-group">
+                <label for="movement-notes">Observaciones (opcional)</label>
+                <textarea
+                  id="movement-notes"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Añade una nota sobre este movimiento..."
+                ></textarea>
+              </div>
+
+            </div>
+
+            <p id="movement-message" class="movement-message"
+              role="status" aria-live="polite"></p>
+
+            <div class="movement-form-actions">
+              <button type="reset" class="btn btn-secondary" id="reset-movement">
+                Limpiar
+              </button>
+              <button type="submit" class="btn btn-primary" id="save-movement">
+                Registrar movimiento
+              </button>
+            </div>
+
+          </form>
+        </section>
+
+        <!-- HISTORIAL -->
+        <section class="card movement-history-card">
+
+          <div class="movement-section-heading history-heading">
+            <div>
+              <span class="movement-eyebrow">SEGUIMIENTO</span>
+              <h2>Historial de movimientos</h2>
+              <p id="movement-count">Cargando historial...</p>
+            </div>
+
+            <button type="button" class="btn btn-secondary"
+              id="refresh-movements">
+              ↻ Actualizar
+            </button>
+          </div>
+
+          <div class="movement-filters">
+
+            <input
+              type="search"
+              id="movement-search"
+              class="search-input"
+              placeholder="Buscar producto o SKU..."
+              aria-label="Buscar movimientos"
+            >
+
+            <select id="movement-type-filter" aria-label="Filtrar por tipo">
+              <option value="">Todos los movimientos</option>
+              <option value="entrada">Entradas</option>
+              <option value="salida">Salidas</option>
+            </select>
+
+          </div>
+
+          <p id="history-message" class="movement-message"
+            role="status" aria-live="polite"></p>
+
+          <div class="table-container movement-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Producto</th>
+                  <th>SKU</th>
+                  <th>Tipo</th>
+                  <th>Cantidad</th>
+                  <th>Responsable</th>
+                  <th>Observaciones</th>
+                </tr>
+              </thead>
+
+              <tbody id="movements-table">
+                <tr>
+                  <td colspan="7">Cargando movimientos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination movement-pagination">
+            <button type="button" class="btn btn-secondary"
+              id="movement-prev-page" disabled>
+              ← Anterior
+            </button>
+
+            <span id="movement-page-info" aria-live="polite">
+              Página 1 de 1
+            </span>
+
+            <button type="button" class="btn btn-secondary"
+              id="movement-next-page" disabled>
+              Siguiente →
+            </button>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/theme.js"></script>
+  <script src="../js/menu.js"></script>
+
+  <script>
+    if (protegerPagina()) {
+      const script = document.createElement("script");
+      script.src = "../js/movements.js";
+      document.body.appendChild(script);
+    }
+  </script>
+
+</body>
+</html>

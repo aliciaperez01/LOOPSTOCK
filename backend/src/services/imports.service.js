@@ -87,6 +87,11 @@ async function procesarFilas(filas, { skusExistentes, proveedoresActivos }) {
       }
     }
 
+    // Si el CSV no indica un estado, el producto se crea como activo
+    if (!producto.status) {
+      producto.status = "active";
+    }
+
     // Obligatorios con valor
     const vacios = COLUMNAS_OBLIGATORIAS.filter((c) => !fila[c]);
     if (vacios.length > 0) { fallo(`Campos vacíos: ${vacios.join(", ")}`); continue; }

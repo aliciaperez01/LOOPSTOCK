@@ -22,10 +22,10 @@ const authRoutes = require("./routes/auth.routes");
 const productsRoutes = require("./routes/products.routes");
 const suppliersRoutes = require("./routes/suppliers.routes");
 const importsRoutes = require("./routes/imports.routes");
+const movementsRoutes = require("./routes/movements.routes");
 const usersRoutes = require("./routes/users.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const swaggerSpec = require("./config/swagger");
-
 const logger = require("./middlewares/logger");
 const noEncontrada = require("./middlewares/noEncontrada");
 const manejarErrores = require("./middlewares/manejarErrores");
@@ -72,7 +72,9 @@ app.use("/api/products", productsRoutes);
 app.use("/api/suppliers", suppliersRoutes);
 app.use("/api/imports", importsRoutes);
 app.use("/api/users", usersRoutes);
+app.use("/api/movements", movementsRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
 
 // Documentación interactiva (Swagger UI) y especificación en JSON
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

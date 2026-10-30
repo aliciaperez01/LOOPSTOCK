@@ -8,11 +8,6 @@
   <title>Productos | Loopstock</title>
 
   <link rel="stylesheet" href="../css/styles.css">
-  <!-- Sesión: si no hay token válido, redirige al login antes de pintar la página -->
-  <script src="../js/config.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../js/auth.js"></script>
-  <script>protegerPagina();</script>
 </head>
 
 <body>
@@ -203,7 +198,8 @@
             aria-live="polite"
           ></p>
 
-          <!-- TABLA -->
+
+          <!-- TABLA DE PRODUCTOS -->
           <div class="table-container">
             <table>
               <thead>
@@ -227,10 +223,36 @@
             </table>
           </div>
 
+          <!-- PAGINACIÓN -->
+          <div class="pagination" id="products-pagination">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="prev-page"
+              disabled
+            >
+              ← Anterior
+            </button>
+
+            <span id="page-info" aria-live="polite">
+              Página 1 de 1
+            </span>
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              id="next-page"
+              disabled
+            >
+              Siguiente →
+            </button>
+          </div>
+
         </section>
       </div>
     </main>
   </div>
+
 
   <!-- VENTANA MODAL: AÑADIR PRODUCTO -->
   <div
@@ -269,9 +291,22 @@
     </section>
   </div>
 
+
   <!-- SCRIPTS -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/menu.js"></script>
-  <script src="../js/products.js"></script>
+  <script>
+
+
+    if (protegerPagina()) {
+      const script = document.createElement("script");
+      script.src = "../js/products.js";
+      document.body.appendChild(script);
+    }
+
+  </script>
 </body>
 </html>

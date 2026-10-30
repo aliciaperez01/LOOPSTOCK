@@ -1,122 +1,101 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Loopstock</title>
+  <title>Centro de control | Loopstock</title>
+
   <link rel="stylesheet" href="../css/styles.css">
-  
-  <!-- Sesión: si no hay token válido, redirige al login antes de pintar la página -->
-  <script src="../js/config.js"></script>
-  <script src="../js/api.js"></script>
-  <script src="../js/auth.js"></script>
-  <script>protegerPagina();</script>
+  <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 
 <body>
   <div class="app-layout">
-
-
-<!-- MENÚ LATERAL -->
-<aside class="sidebar" id="sidebar">
-
-  <!-- Botón para cerrar el menú en móvil -->
-  <button
-    type="button"
-    class="menu-close"
-    id="menu-close"
-    aria-label="Cerrar menú"
-  >
-    ✕
-  </button>
-
-  <a href="dashboard.html" class="brand">
-    <span class="brand-name">▦ LOOPSTOCK</span>
-  </a>
-
-  <p class="nav-label">Menú principal</p>
-
-  <nav>
-    <a href="dashboard.html" class="nav-link active">
-      <span class="nav-icon">▦</span>
-      Dashboard
-    </a>
-
-    <a href="products.html" class="nav-link">
-      <span class="nav-icon">▣</span>
-      Productos
-    </a>
-
-    <a href="suppliers.html" class="nav-link">
-      <span class="nav-icon">▤</span>
-      Proveedores
-    </a>
-
-    <a href="movements.html" class="nav-link">
-      <span class="nav-icon">⇄</span>
-      Movimientos
-    </a>
-
-    <a href="imports.html" class="nav-link">
-      <span class="nav-icon">⇧</span>
-      Importaciones
-    </a>
-  </nav>
-
-  <p class="nav-label">Sistema</p>
-
-  <a href="login.html" class="nav-link">
-    <span class="nav-icon">↪</span>
-    Cerrar sesión
-  </a>
-
-</aside>
-
-
-<!-- CONTENIDO PRINCIPAL -->
-<main class="main-content">
-
-  <!-- BARRA SUPERIOR -->
-  <header class="topbar">
-
-    <div class="topbar-left">
-
+    <aside class="sidebar" id="sidebar">
       <button
         type="button"
-        class="menu-toggle"
-        id="menu-toggle"
-        aria-label="Abrir menú"
-        aria-controls="sidebar"
-        aria-expanded="false"
+        class="menu-close"
+        id="menu-close"
+        aria-label="Cerrar menú"
       >
-        ☰
+        ✕
       </button>
 
-      <strong>Panel de control</strong>
+      <a href="dashboard.html" class="brand">
+        <span class="brand-name">▦ LOOPSTOCK</span>
+      </a>
 
-    </div>
+      <p class="nav-label">Menú principal</p>
 
-    <button
-      type="button"
-      class="btn btn-secondary"
-      id="theme-toggle"
-      aria-label="Cambiar a modo oscuro"
-    >
-      <span id="theme-icon" aria-hidden="true">🌙</span>
-      <span id="theme-label">Modo oscuro</span>
-    </button>
+      <nav>
+        <a href="dashboard.html" class="nav-link active">
+          <span class="nav-icon">▦</span>
+          Centro de control
+        </a>
 
-  </header>
+        <a href="products.html" class="nav-link">
+          <span class="nav-icon">▣</span>
+          Productos
+        </a>
+
+        <a href="suppliers.html" class="nav-link">
+          <span class="nav-icon">▤</span>
+          Proveedores
+        </a>
+
+        <a href="movements.html" class="nav-link">
+          <span class="nav-icon">⇄</span>
+          Movimientos
+        </a>
+
+        <a href="imports.html" class="nav-link">
+          <span class="nav-icon">⇧</span>
+          Importaciones
+        </a>
+      </nav>
+
+      <p class="nav-label">Sistema</p>
+
+      <a href="#" class="nav-link" data-logout>
+        <span class="nav-icon">↪</span>
+        Cerrar sesión
+      </a>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menú"
+            aria-controls="sidebar"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <strong>Centro de control</strong>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="theme-toggle"
+          aria-label="Cambiar a modo oscuro"
+        >
+          <span id="theme-icon" aria-hidden="true">🌙</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+      </header>
 
       <section class="page-content">
-
-        <!-- CABECERA -->
         <div class="page-header">
           <div>
-            <h1>Dashboard</h1>
+            <h1>Centro de control</h1>
             <p class="page-description">
-              Bienvenida a tu panel de control de inventario.
+              Supervisa el estado de tu inventario y las últimas operaciones.
             </p>
           </div>
 
@@ -125,9 +104,7 @@
           </a>
         </div>
 
-        <!-- INDICADORES -->
         <div class="stats-grid">
-
           <article class="stat-card">
             <p class="stat-label">Productos registrados</p>
             <p class="stat-value" id="total-products">—</p>
@@ -151,47 +128,109 @@
             <p class="stat-value" id="inventory-value">—</p>
             <p class="stat-note">Valor estimado en euros</p>
           </article>
-
         </div>
 
-        <!-- ACTIVIDAD -->
-        <section class="card">
-          <h2>Resumen del inventario</h2>
-          <p class="page-description">
-            Consulta tus productos, existencias y alertas de inventario.
-         </p>
+        <div class="dashboard-overview-grid">
+          <section class="card dashboard-panel">
+            <div class="dashboard-section-heading">
+              <div>
+                <h2>Estado del inventario</h2>
+                <p class="page-description">
+                  Distribución de las referencias.
+                </p>
+              </div>
+            </div>
 
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>SKU</th>
-                  <th>Unidades</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
+            <div class="inventory-status-list">
+              <div class="inventory-status-item">
+                <div class="inventory-status-label">
+                  <span class="status-dot available-dot"></span>
+                  Disponible
+                </div>
+                <strong id="status-available">—</strong>
+              </div>
 
+              <div class="inventory-progress">
+                <span id="bar-available" class="available-bar"></span>
+              </div>
 
-            <tbody id="dashboard-products">
-                <tr>
-                    <td colspan="4">
-                    Cargando productos...
-                    </td>
-                </tr>
-                </tbody>
+              <div class="inventory-status-item">
+                <div class="inventory-status-label">
+                  <span class="status-dot low-dot"></span>
+                  Stock bajo
+                </div>
+                <strong id="status-low">—</strong>
+              </div>
 
-            </table>
+              <div class="inventory-progress">
+                <span id="bar-low" class="low-bar"></span>
+              </div>
+
+              <div class="inventory-status-item">
+                <div class="inventory-status-label">
+                  <span class="status-dot out-dot"></span>
+                  Agotado
+                </div>
+                <strong id="status-out">—</strong>
+              </div>
+
+              <div class="inventory-progress">
+                <span id="bar-out" class="out-bar"></span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card dashboard-panel">
+            <div class="dashboard-section-heading">
+              <div>
+                <h2>Alertas de inventario</h2>
+                <p class="page-description">
+                  Productos que necesitan atención.
+                </p>
+              </div>
+
+              <a href="products.html" class="dashboard-text-link">
+                Ver productos
+              </a>
+            </div>
+
+            <div id="dashboard-alerts" class="dashboard-alerts">
+              <p class="dashboard-empty">
+                Cargando alertas...
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <section class="card dashboard-panel">
+          <div class="dashboard-section-heading">
+            <div>
+              <h2>Actividad reciente</h2>
+              <p class="page-description">
+                Últimos movimientos de inventario.
+              </p>
+            </div>
+
+            <a href="movements.html" class="dashboard-text-link">
+              Ver movimientos
+            </a>
+          </div>
+
+          <div id="recent-movements" class="recent-movements">
+            <p class="dashboard-empty">
+              Cargando movimientos...
+            </p>
           </div>
         </section>
-
       </section>
     </main>
   </div>
 
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
   <script src="../js/menu.js"></script>
-    <script src="../js/theme.js"></script>
-    <script src="../js/dashboard.js"></script>
-
+  <script src="../js/theme.js"></script>
+  <script src="../js/dashboard.js"></script>
 </body>
 </html>

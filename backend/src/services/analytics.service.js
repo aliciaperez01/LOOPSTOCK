@@ -143,4 +143,92 @@ async function importaciones() {
   );
 }
 
-module.exports = { resumen, porCategoria, porProveedor, importaciones };
+// PRODUCTOS CON MÁS VALOR EN STOCK (quantity * price), solo activos
+function topValue(limit = 10) {
+  return Product.aggregate([
+    { $match: { status: "active" } },
+    {
+      $project: {
+        _id: 0,
+        name: 1,
+        sku: 1,
+        category: 1,
+        quantity: 1,
+        price: 1,
+        stockValue: { $round: [{ $multiply: ["$quantity", "$price"] }, 2] }
+      }
+    },
+    { $sort: { stockValue: -1, name: 1 } },
+    { $limit: limit }
+  ]);
+}
+
+// RANKING DE PROVEEDORES: número de productos activos y valor en stock
+// Product.supplier guarda el nombre del proveedor (no ref), igual que porProveedor()
+function suppliersRanking() {
+  return Product.aggregate([
+    { $match: { status: "active", supplier: { $ne: "" } } },
+    {
+      $group: {
+        _id: "$supplier",
+        totalProducts: { $sum: 1 },
+        totalUnits: { $sum: "$quantity" },
+        stockValue: { $sum: { $multiply: ["$quantity", "$price"] } }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        supplier: "$_id",
+        totalProducts: 1,
+        totalUnits: 1,
+        stockValue: { $round: ["$stockValue", 2] }
+      }
+    },
+    { $sort: { stockValue: -1, supplier: 1 } }
+  ]);
+}
+
+// IMPORTACIONES POR DÍA (últimos `days` días): total, correctas y con errores
+async function importsTimeline(days = 30) {
+  const desde = new Date();
+  desde.setDate(desde.getDate() - days);
+
+  return ImportJob.aggregate([
+    { $match: { createdAt: { $gte: desde } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        totalJobs: { $sum: 1 },
+        completed: { $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] } },
+        partial: { $sum: { $cond: [{ $eq: ["$status", "partial"] }, 1, 0] } },
+        failed: { $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] } },
+        totalRows: { $sum: "$totalRows" },
+        errorRows: { $sum: "$errorRows" }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        date: "$_id",
+        totalJobs: 1,
+        completed: 1,
+        partial: 1,
+        failed: 1,
+        totalRows: 1,
+        errorRows: 1
+      }
+    },
+    { $sort: { date: 1 } }
+  ]);
+}
+
+module.exports = {
+  resumen,
+  porCategoria,
+  porProveedor,
+  importaciones,
+  topValue,
+  suppliersRanking,
+  importsTimeline
+};

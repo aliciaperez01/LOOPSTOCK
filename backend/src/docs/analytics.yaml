@@ -32,6 +32,32 @@ components:
         errorRows: { type: integer, example: 8 }
         successRate: { type: number, description: "insertedRows / totalRows × 100 (2 decimales)", example: 93.33 }
         lastImportAt: { type: string, format: date-time, nullable: true }
+    ProductoTopValue:
+      type: object
+      properties:
+        name: { type: string, example: Pioneer DJM-A9 }
+        sku: { type: string, example: PION-DJM-A9 }
+        category: { type: string, example: Mezcladoras }
+        quantity: { type: integer, example: 6 }
+        price: { type: number, example: 2199 }
+        stockValue: { type: number, description: "quantity × price (2 decimales)", example: 13194 }
+    RankingProveedor:
+      type: object
+      properties:
+        supplier: { type: string, example: Pioneer DJ }
+        totalProducts: { type: integer, example: 12 }
+        totalUnits: { type: integer, example: 90 }
+        stockValue: { type: number, example: 54200.5 }
+    ImportacionDiaria:
+      type: object
+      properties:
+        date: { type: string, example: "2026-10-30" }
+        totalJobs: { type: integer, example: 2 }
+        completed: { type: integer, example: 1 }
+        partial: { type: integer, example: 1 }
+        failed: { type: integer, example: 0 }
+        totalRows: { type: integer, example: 40 }
+        errorRows: { type: integer, example: 3 }
 
 paths:
   /api/analytics/summary:
@@ -99,5 +125,77 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/EstadisticasImportaciones" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/imports/timeline:
+    get:
+      tags: [Analítica]
+      summary: Importaciones por día
+      description: Agrupa los ImportJob de los últimos `days` días (por defecto 30) por fecha.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema: { type: integer, minimum: 1, maximum: 365, default: 30 }
+      responses:
+        "200":
+          description: Importaciones agrupadas por día
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ImportacionDiaria" }
+        "400":
+          description: Datos no válidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorValidacion" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/top-value:
+    get:
+      tags: [Analítica]
+      summary: Productos con más valor en stock
+      description: Solo productos activos. Ordenado por quantity × price descendente.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        "200":
+          description: Lista de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ProductoTopValue" }
+        "400":
+          description: Datos no válidos
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorValidacion" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/suppliers-ranking:
+    get:
+      tags: [Analítica]
+      summary: Ranking de proveedores por valor en stock
+      description: Solo productos activos con proveedor asignado. Ordenado por stockValue descendente.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RankingProveedor" }
         "401": { $ref: "#/components/responses/NoAutenticado" }
         "403": { $ref: "#/components/responses/SinPermiso" }

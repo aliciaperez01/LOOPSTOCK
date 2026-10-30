@@ -4,6 +4,11 @@ const {
   verificarToken,
   autorizarRoles
 } = require("../middlewares/auth.middleware");
+const validar = require("../middlewares/validar");
+const {
+  reglasTopValue,
+  reglasImportsTimeline
+} = require("../validators/analytics.validator");
 
 const analyticsRouter = Router();
 
@@ -23,5 +28,26 @@ analyticsRouter.get("/by-supplier", todosLosRoles, analytics.porProveedor);
 
 // GET /api/analytics/imports - Estadísticas de importaciones CSV
 analyticsRouter.get("/imports", todosLosRoles, analytics.importaciones);
+
+// GET /api/analytics/imports/timeline - Importaciones por día (?days=)
+analyticsRouter.get(
+  "/imports/timeline",
+  todosLosRoles,
+  reglasImportsTimeline,
+  validar,
+  analytics.importsTimeline
+);
+
+// GET /api/analytics/top-value - Productos con más valor en stock (?limit=)
+analyticsRouter.get(
+  "/top-value",
+  todosLosRoles,
+  reglasTopValue,
+  validar,
+  analytics.topValue
+);
+
+// GET /api/analytics/suppliers-ranking - Proveedores por valor en stock
+analyticsRouter.get("/suppliers-ranking", todosLosRoles, analytics.suppliersRanking);
 
 module.exports = analyticsRouter;

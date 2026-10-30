@@ -24,11 +24,4 @@ async function obtener(req, res) {
   res.status(200).json(job);
 }
 
-function validarId(req, res, next) {
-  if (!importsService.esIdValido(req.params.id)) {
-    throw new AppError("ID de importación no válido", 400);
-  }
-  next();
-}
-
-module.exports = { importar, listar, obtener, validarId };
+module.exports = { importar, listar, obtener };

@@ -33,7 +33,7 @@ async function loadDashboard() {
 
   try {
     const [statsResult, productsResult] = await Promise.allSettled([
-      apiFetch("/products/stats"),
+      apiFetch("/analytics/summary"),
       apiFetch("/products?page=1&limit=100")
     ]);
 
@@ -47,10 +47,10 @@ async function loadDashboard() {
         numberFormat.format(stats.totalUnits);
 
       elements.lowStock.textContent =
-        numberFormat.format(stats.lowStock);
+        numberFormat.format(stats.lowStockCount);
 
       elements.value.textContent =
-        euroFormat.format(stats.inventoryValue);
+        euroFormat.format(stats.stockValue);
     } else {
       throw statsResult.reason;
     }

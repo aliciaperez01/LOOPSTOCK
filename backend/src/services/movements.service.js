@@ -21,7 +21,35 @@ async function listar(filtros = {}) {
     filtro.product = filtros.product;
   }
 
-  const page = Math.max(1, Number.parseInt(filtros.page, 10) || 1);
+  // Buscar por nombre o SKU del producto
+  if (filtros.search?.trim()) {
+    const termino = filtros.search.trim();
+
+    // Escapar caracteres especiales de la expresión regular
+    const terminoEscapado = termino.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(terminoEscapado, "i");
+
+    const productosEncontrados = await Product.find({
+      $or: [
+        { name: regex },
+        { sku: regex }
+      ]
+    }).select("_id");
+
+    const idsProductos = productosEncontrados.map(
+      producto => producto._id
+    );
+
+    filtro.product = {
+      $in: idsProductos
+    };
+  }
+
+  const page = Math.max(
+    1,
+    Number.parseInt(filtros.page, 10) || 1
+  );
+
   const limit = Math.min(
     100,
     Math.max(1, Number.parseInt(filtros.limit, 10) || 10)
@@ -34,6 +62,7 @@ async function listar(filtros = {}) {
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit),
+
     Movement.countDocuments(filtro)
   ]);
 

@@ -97,7 +97,9 @@ async function loadProducts() {
 }
 
 function updateProductStockInfo() {
-  const product = products.find(item => item._id === productSelect.value);
+  const product = products.find(
+    item => item._id === productSelect.value
+  );
 
   if (!product) {
     productStockInfo.textContent =
@@ -105,8 +107,32 @@ function updateProductStockInfo() {
     return;
   }
 
-  productStockInfo.textContent =
-    `Stock disponible: ${numberFormatter.format(Number(product.quantity) || 0)} unidades`;
+  const stockActual = Number(product.quantity) || 0;
+  const cantidad = Number(quantityInput.value);
+  const tipo = getSelectedType();
+
+  let mensaje = `Stock actual: ${numberFormatter.format(stockActual)} unidades.`;
+
+  if (!tipo) {
+    mensaje += " Selecciona entrada o salida.";
+  } else if (
+    quantityInput.value.trim() !== "" &&
+    Number.isInteger(cantidad) &&
+    cantidad > 0
+  ) {
+    const stockResultante =
+      tipo === "entrada"
+        ? stockActual + cantidad
+        : stockActual - cantidad;
+
+    mensaje += ` Stock después del movimiento: ${numberFormatter.format(stockResultante)} unidades.`;
+
+    if (tipo === "salida" && cantidad > stockActual) {
+      mensaje += " ¡Atención! No hay stock suficiente.";
+    }
+  }
+
+  productStockInfo.textContent = mensaje;
 }
 
 /* =========================================
@@ -210,6 +236,13 @@ async function loadMovements() {
 
     if (typeFilter.value) {
       params.set("type", typeFilter.value);
+    }
+
+    // Buscar por nombre o SKU del producto
+    const search = searchInput.value.trim();
+
+    if (search) {
+      params.set("search", search);
     }
 
     const data = await apiFetch(`/movements?${params.toString()}`);
@@ -322,6 +355,8 @@ movementForm.querySelectorAll('input[name="type"]').forEach(input => {
   input.addEventListener("change", updateProductStockInfo);
 });
 
+quantityInput.addEventListener("input", updateProductStockInfo);
+
 movementForm.addEventListener("reset", () => {
   setTimeout(updateProductStockInfo, 0);
   movementMessage.textContent = "";
@@ -332,7 +367,10 @@ refreshMovementsButton.addEventListener("click", () => {
   loadMovements();
 });
 
-searchInput.addEventListener("input", renderMovements);
+searchInput.addEventListener("input", () => {
+  currentPage = 1;
+  loadMovements();
+});
 
 typeFilter.addEventListener("change", () => {
   currentPage = 1;

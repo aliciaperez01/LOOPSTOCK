@@ -7,6 +7,7 @@ async function listar(req, res, next) {
     const filtros = {
       type: req.query.type,
       product: req.query.product,
+      search: req.query.search,
       page: req.query.page,
       limit: req.query.limit
     };

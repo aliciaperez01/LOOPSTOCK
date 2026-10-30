@@ -1,0 +1,103 @@
+components:
+  schemas:
+    ResumenInventario:
+      type: object
+      description: Solo cuenta productos activos. Sin productos, todos los valores son 0.
+      properties:
+        totalProducts: { type: integer, example: 42 }
+        totalUnits: { type: integer, description: Suma de quantity, example: 318 }
+        stockValue: { type: number, description: "Suma de quantity × price (2 decimales)", example: 45890.5 }
+        stockCost: { type: number, description: "Suma de quantity × cost (2 decimales)", example: 31200.75 }
+        lowStockCount: { type: integer, description: "Productos con quantity <= minStock", example: 5 }
+        outOfStockCount: { type: integer, description: "Productos con quantity = 0", example: 1 }
+        categoriesCount: { type: integer, description: Número de categorías distintas, example: 7 }
+    GrupoInventario:
+      type: object
+      properties:
+        name: { type: string, description: "Categoría o proveedor; vacío → «Sin categoría» / «Sin proveedor»", example: Controladoras }
+        totalProducts: { type: integer, example: 8 }
+        totalUnits: { type: integer, example: 64 }
+        stockValue: { type: number, example: 12450 }
+        lowStockCount: { type: integer, example: 2 }
+    EstadisticasImportaciones:
+      type: object
+      description: Agregado de todos los ImportJob. Sin importaciones, todo a 0 y lastImportAt null.
+      properties:
+        totalJobs: { type: integer, example: 6 }
+        completed: { type: integer, example: 4 }
+        partial: { type: integer, example: 1 }
+        failed: { type: integer, example: 1 }
+        totalRows: { type: integer, example: 120 }
+        insertedRows: { type: integer, example: 112 }
+        errorRows: { type: integer, example: 8 }
+        successRate: { type: number, description: "insertedRows / totalRows × 100 (2 decimales)", example: 93.33 }
+        lastImportAt: { type: string, format: date-time, nullable: true }
+
+paths:
+  /api/analytics/summary:
+    get:
+      tags: [Analítica]
+      summary: Resumen general del inventario
+      description: Totales de productos activos, valor y coste del stock, stock bajo y agotados.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Resumen del inventario
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResumenInventario" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/by-category:
+    get:
+      tags: [Analítica]
+      summary: Inventario agrupado por categoría
+      description: Solo productos activos. Ordenado por stockValue descendente.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GrupoInventario" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/by-supplier:
+    get:
+      tags: [Analítica]
+      summary: Inventario agrupado por proveedor
+      description: Solo productos activos. Agrupa por el nombre guardado en Product.supplier. Ordenado por stockValue descendente.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de proveedores
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GrupoInventario" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }
+
+  /api/analytics/imports:
+    get:
+      tags: [Analítica]
+      summary: Estadísticas de importaciones CSV
+      description: Totales por estado (completed, partial, failed), filas procesadas y porcentaje de éxito.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Estadísticas de importación
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EstadisticasImportaciones" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "403": { $ref: "#/components/responses/SinPermiso" }

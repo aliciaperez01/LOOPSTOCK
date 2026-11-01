@@ -1,6 +1,4 @@
-// FASE 2 — preparado, pero todavía SIN conectar en products.routes.js.
-// Se conecta cuando la integración de Ali (paginación, stats, categories) esté en main,
-// para no pisar los archivos que está tocando ella.
+// Pendiente de conectar en products.routes.js
 const { body, param, query } = require("express-validator");
 
 const reglasId = [

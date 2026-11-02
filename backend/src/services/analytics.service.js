@@ -1,11 +1,12 @@
+
 const Product = require("../models/Product");
 const ImportJob = require("../models/ImportJob");
 
 // RESUMEN GENERAL DEL INVENTARIO
-// Solo cuenta productos activos: los inactivos (baja lógica) no son stock real.
+// Incluye productos activos y registros antiguos sin status; excluye los inactivos.
 async function resumen() {
   const [resultado] = await Product.aggregate([
-    { $match: { status: "active" } },
+    { $match: { status: { $ne: "inactive" } } },
     {
       $group: {
         _id: null,
@@ -36,7 +37,7 @@ async function resumen() {
     }
   ]);
 
-  // Sin productos activos, aggregate devuelve [] → se responde con ceros.
+  // Sin productos incluidos, aggregate devuelve [] → se responde con ceros.
   return (
     resultado || {
       totalProducts: 0,
@@ -50,10 +51,10 @@ async function resumen() {
   );
 }
 
-// Agrupación común por categoría o proveedor (solo productos activos)
+// Agrupación común por categoría o proveedor (productos no inactivos).
 function agruparPor(campo, etiquetaVacia) {
   return Product.aggregate([
-    { $match: { status: "active" } },
+    { $match: { status: { $ne: "inactive" } } },
     {
       $group: {
         _id: { $ifNull: [`$${campo}`, ""] },
@@ -143,10 +144,10 @@ async function importaciones() {
   );
 }
 
-// PRODUCTOS CON MÁS VALOR EN STOCK (quantity * price), solo activos
+// PRODUCTOS CON MÁS VALOR EN STOCK (quantity * price), no inactivos.
 function topValue(limit = 10) {
   return Product.aggregate([
-    { $match: { status: "active" } },
+    { $match: { status: { $ne: "inactive" } } },
     {
       $project: {
         _id: 0,
@@ -163,11 +164,11 @@ function topValue(limit = 10) {
   ]);
 }
 
-// RANKING DE PROVEEDORES: número de productos activos y valor en stock
-// Product.supplier guarda el nombre del proveedor (no ref), igual que porProveedor()
+// RANKING DE PROVEEDORES: número de productos no inactivos y valor en stock.
+// Product.supplier guarda el nombre del proveedor (no ref), igual que porProveedor().
 function suppliersRanking() {
   return Product.aggregate([
-    { $match: { status: "active", supplier: { $ne: "" } } },
+    { $match: { status: { $ne: "inactive" }, supplier: { $ne: "" } } },
     {
       $group: {
         _id: "$supplier",

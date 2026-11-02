@@ -183,4 +183,44 @@
     flex: 1;
   }
 
+  /* =========================================
+   9. FILTROS DEL PANEL DE USUARIOS
+========================================= */
+
+.users-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.users-toolbar .section-header {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.users-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.users-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.users-filters select {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: max-content;
+  max-width: 100%;
+}
+
 }

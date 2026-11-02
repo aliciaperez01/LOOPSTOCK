@@ -106,27 +106,27 @@ async function loadProduct() {
   formMessage.textContent = "Cargando datos del producto...";
 
   try {
-    const data = await apiFetch("/products");
-    const products = Array.isArray(data) ? data : data?.items;
+    // Recuperar directamente el producto mediante su ID
+    const product = await apiFetch(
+      `/products/${encodeURIComponent(productId)}`
+    );
 
-    if (!Array.isArray(products)) {
-      throw new Error("La API no ha devuelto una lista válida.");
-    }
-
-    const product = products.find(item => item._id === productId);
-
-    if (!product) {
+    if (!product || !product._id) {
       throw new Error("No se ha encontrado el producto.");
     }
 
-    populateCategories(products, product.category ?? "");
+    // Cargar categorías conservando la del producto
+    await loadCategories(product.category ?? "");
 
-    form.elements.name.value = product.name ?? "";
-    form.elements.sku.value = product.sku ?? "";
+    // Cargar proveedores y seleccionar el correspondiente
     await loadSuppliers(
       product.supplierRef ?? null,
       product.supplier ?? ""
     );
+
+    // Rellenar el formulario
+    form.elements.name.value = product.name ?? "";
+    form.elements.sku.value = product.sku ?? "";
     form.elements.quantity.value = product.quantity ?? 0;
     form.elements.minStock.value = product.minStock ?? 0;
     form.elements.price.value = product.price ?? 0;
@@ -135,6 +135,7 @@ async function loadProduct() {
     form.elements.status.value = product.status ?? "active";
 
     formMessage.textContent = "";
+
   } catch (error) {
     formMessage.textContent = error.message;
   }

@@ -225,8 +225,6 @@ async function updateCategoryOptions() {
   }
 }
 
-
-// Mostrar productos
 function renderProducts() {
   productCount.textContent =
     `${numberFormatter.format(totalProducts)} producto(s) encontrado(s)`;
@@ -262,13 +260,31 @@ function renderProducts() {
 
     return `
       <tr>
-        <td>${escapeHTML(product.name)}</td>
-        <td>${escapeHTML(product.sku)}</td>
-        <td>${escapeHTML(product.category)}</td>
-        <td>${numberFormatter.format(quantity)}</td>
-        <td>${price}</td>
-        <td>${escapeHTML(product.supplier || "—")}</td>
-        <td>
+        <td class="col-product">
+          ${escapeHTML(product.name)}
+        </td>
+
+        <td class="col-sku">
+          SKU: ${escapeHTML(product.sku)}
+        </td>
+
+        <td class="col-category">
+          ${escapeHTML(product.category)}
+        </td>
+
+        <td class="col-quantity">
+          ${numberFormatter.format(quantity)}
+        </td>
+
+        <td class="col-price">
+          ${price}
+        </td>
+
+        <td class="col-supplier">
+          ${escapeHTML(product.supplier || "—")}
+        </td>
+
+        <td class="col-status">
           <span class="badge ${getStockClass(stockStatus)}">
             ${getStockLabel(stockStatus)}
           </span>
@@ -279,24 +295,41 @@ function renderProducts() {
               : '<span class="badge badge-success">ACTIVO</span>'
           }
         </td>
-        <td>
+
+        <td class="col-actions">
           <div class="product-actions">
             <a href="${editUrl}" class="btn btn-secondary"
                aria-label="Editar ${escapeHTML(product.name)}">
               ✎ Editar
             </a>
+
             <button type="button" class="btn btn-danger"
                     data-delete-id="${escapeHTML(product._id)}"
                     data-delete-name="${escapeHTML(product.name)}">
               🗑 Eliminar
             </button>
           </div>
+
+          <button
+            type="button"
+            class="product-details-toggle"
+            aria-expanded="false"
+          >
+            Ver más detalles ↓
+          </button>
+
+          <div class="product-extra-details" hidden>
+            <p><strong>Categoría:</strong> ${escapeHTML(product.category || "—")}</p>
+            <p><strong>Unidades:</strong> ${numberFormatter.format(quantity)}</p>
+            <p><strong>Proveedor:</strong> ${escapeHTML(product.supplier || "—")}</p>
+            <p><strong>Stock:</strong> ${getStockLabel(stockStatus)}</p>
+            <p><strong>Estado:</strong> ${productStatus === "inactive" ? "Inactivo" : "Activo"}</p>
+          </div>
         </td>
       </tr>
     `;
   }).join("");
 }
-
 
 // Evitar insertar HTML no seguro
 function escapeHTML(value) {
@@ -424,6 +457,26 @@ nextPageButton.addEventListener("click", async () => {
 
 // Eliminar productos
 productsTable.addEventListener("click", async event => {
+    // Desplegar u ocultar detalles del producto
+  const detailsButton = event.target.closest(".product-details-toggle");
+
+  if (detailsButton) {
+    const details = detailsButton
+      .closest(".col-actions")
+      .querySelector(".product-extra-details");
+
+    const isExpanded = detailsButton.getAttribute("aria-expanded") === "true";
+
+    details.hidden = isExpanded;
+    detailsButton.setAttribute("aria-expanded", String(!isExpanded));
+
+    detailsButton.textContent = isExpanded
+      ? "Ver más detalles ↓"
+      : "Ver menos detalles ↑";
+
+    return;
+  }
+
   const button = event.target.closest("[data-delete-id]");
   if (!button) return;
 

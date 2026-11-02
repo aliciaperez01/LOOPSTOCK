@@ -18,8 +18,11 @@
 
 .sidebar {
   position: static;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   min-width: 0;
+  min-height: 100vh;
   box-sizing: border-box;
   padding: 16px;
   background: var(--primary);
@@ -39,11 +42,9 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-
   min-height: 64px;
   padding: 14px 16px;
   box-sizing: border-box;
-
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
@@ -59,14 +60,17 @@
 
 
 /* =========================================
-   2. MARCA
+   2. MARCA Y LOGOTIPO
    ========================================= */
 
-.brand {
+.sidebar .brand {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  color: #ffffff;
+  text-decoration: none;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -75,9 +79,36 @@
   letter-spacing: 1px;
 }
 
+.brand-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.brand-logo span {
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #4ed0a6;
+  border-radius: 50%;
+}
+
+.brand-logo span:first-child {
+  left: 2px;
+}
+
+.brand-logo span:last-child {
+  right: 2px;
+  border-color: #ffffff;
+}
+
 
 /* =========================================
-   3. NAVEGACIÓN
+   3. NAVEGACIÓN LATERAL
    ========================================= */
 
 .nav-label {
@@ -89,31 +120,99 @@
   letter-spacing: 1px;
 }
 
-.nav-link {
+.sidebar nav,
+.sidebar-nav {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sidebar .nav-link {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px;
   margin-bottom: 5px;
+  border: 0;
   border-radius: 8px;
   color: #e0e9ee;
   text-decoration: none;
-  transition: background 0.2s ease;
+  list-style: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.nav-link:hover,
-.nav-link.active {
-  background: rgba(255, 255, 255, 0.14);
+.sidebar .nav-link:hover {
+  background: rgba(255, 255, 255, 0.10);
   color: #ffffff;
 }
 
-.nav-link.active {
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 700;
   box-shadow: inset 3px 0 #4ed0a6;
+}
+
+.sidebar .nav-link::before,
+.sidebar .nav-link::after {
+  content: none;
+}
+
+.sidebar .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  line-height: 1;
+}
+
+.sidebar .nav-icon svg {
+  display: block;
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
 }
 
 
 /* =========================================
-   4. ENCABEZADOS DE PÁGINA
+   4. SESIÓN Y CIERRE DE SESIÓN
+   ========================================= */
+
+.sidebar-session {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-user {
+  display: block;
+  padding: 0 12px;
+  color: #b9cbd5;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================
+   5. ENCABEZADOS DE PÁGINA
    ========================================= */
 
 .page-header {
@@ -140,7 +239,7 @@
 
 
 /* =========================================
-   5. EVITAR DESBORDAMIENTOS
+   6. EVITAR DESBORDAMIENTOS
    ========================================= */
 
 .main-content,

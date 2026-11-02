@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Usuarios | Loopstock</title>
+
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/gestion.css">
+
+  <!-- Sesión: acceso exclusivo para administradores -->
+  <script src="../js/config.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>protegerPagina({ roles: ["admin"] });</script>
+</head>
+
+<body>
+  <div class="app-layout">
+
+    <!-- MENÚ LATERAL COMÚN -->
+    <div id="sidebar-container"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- BARRA SUPERIOR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="menu-toggle"
+            id="menu-toggle"
+            aria-label="Abrir menú"
+            aria-expanded="false"
+          >
+            ☰
+          </button>
+
+          <div>
+            <h1>Usuarios</h1>
+            <p>Administración de cuentas de LOOPSTOCK.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          id="theme-toggle"
+          aria-label="Cambiar a modo oscuro"
+        >
+          <span id="theme-icon" aria-hidden="true">☾</span>
+          <span id="theme-label">Modo oscuro</span>
+        </button>
+      </header>
+
+      <!-- CONTENIDO -->
+      <div class="page-content">
+
+        <section class="page-header">
+          <div>
+            <h2>Gestión de usuarios</h2>
+            <p>Consulta, crea y administra las cuentas de acceso.</p>
+          </div>
+
+          <button
+            type="button"
+            id="add-user-button"
+            class="btn btn-primary"
+          >
+            + Crear usuario
+          </button>
+        </section>
+
+        <!-- LISTADO -->
+        <section class="card gestion-card">
+
+          <div class="section-header">
+            <div>
+              <h2>Listado de usuarios</h2>
+              <p id="user-count" class="gestion-count">
+                Cargando usuarios...
+              </p>
+            </div>
+
+            <button
+              type="button"
+              id="refresh-button"
+              class="btn btn-secondary"
+            >
+              Actualizar
+            </button>
+          </div>
+
+          <!-- FILTROS -->
+          <form id="user-filters" class="gestion-filters">
+
+            <select
+              id="role-filter"
+              class="gestion-input"
+              aria-label="Filtrar por rol"
+            >
+              <option value="">Todos los roles</option>
+              <option value="admin">Administradores</option>
+              <option value="empleado">Empleados</option>
+            </select>
+
+            <select
+              id="active-filter"
+              class="gestion-input"
+              aria-label="Filtrar por estado"
+            >
+              <option value="true">Solo activos</option>
+              <option value="false">Solo inactivos</option>
+              <option value="">Todos los estados</option>
+            </select>
+
+          </form>
+
+          <!-- MENSAJES -->
+          <p
+            id="message"
+            class="gestion-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <!-- TABLA -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Correo electrónico</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Fecha de creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody id="users-table">
+                <tr>
+                  <td colspan="6">Cargando usuarios...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: CREAR USUARIO -->
+  <div class="product-modal-overlay" id="user-modal" hidden>
+    <section
+      class="product-modal gestion-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="user-modal-title"
+    >
+
+      <header class="product-modal-header">
+        <h2 id="user-modal-title">Crear usuario</h2>
+
+        <button
+          type="button"
+          class="product-modal-close"
+          id="close-user-modal"
+          aria-label="Cerrar ventana"
+        >
+          &times;
+        </button>
+      </header>
+
+      <form id="user-form" class="gestion-modal-body">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="name">Nombre completo *</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              minlength="2"
+              maxlength="60"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo electrónico *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña *</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              minlength="8"
+              autocomplete="new-password"
+            >
+            <small class="gestion-help">
+              Debe tener al menos 8 caracteres.
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Rol *</label>
+            <select id="role" name="role" required>
+              <option value="empleado">Empleado</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+
+        </div>
+
+        <p
+          id="form-message"
+          class="gestion-message"
+          role="alert"
+        ></p>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="cancel-user"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="save-user"
+          >
+            Crear usuario
+          </button>
+        </div>
+
+      </form>
+    </section>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="../js/theme.js"></script>
+  <script src="../js/menu.js"></script>
+  <script src="../js/users.js"></script>
+
+</body>
+</html>

@@ -24,4 +24,27 @@ async function obtener(req, res) {
   res.status(200).json(job);
 }
 
-module.exports = { importar, listar, obtener };
+async function listarProveedoresPendientes(req, res) {
+  const resultado = await importsService.listarProveedoresPendientes(
+    req.params.id
+  );
+
+  res.status(200).json(resultado);
+}
+
+async function asignarProveedores(req, res) {
+  const resultado = await importsService.asignarProveedores(
+    req.params.id,
+    req.body.asignaciones
+  );
+
+  res.status(200).json(resultado);
+}
+
+module.exports = {
+  importar,
+  listar,
+  obtener,
+  listarProveedoresPendientes,
+  asignarProveedores
+};

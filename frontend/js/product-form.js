@@ -58,6 +58,46 @@ async function loadCategories(selectedCategory = "") {
   populateCategories(products, selectedCategory);
 }
 
+// CARGAR PROVEEDORES ACTIVOS
+async function loadSuppliers(selectedSupplier = null, historicalName = "") {
+  const supplierSelect = form.elements.namedItem("supplierRef");
+
+  const proveedores = await apiFetch("/suppliers?active=true");
+
+  if (!Array.isArray(proveedores)) {
+    throw new Error("La API no ha devuelto una lista válida de proveedores.");
+  }
+
+  supplierSelect.replaceChildren(
+    new Option("Selecciona un proveedor", "")
+  );
+
+  proveedores.forEach(proveedor => {
+    supplierSelect.add(
+      new Option(proveedor.name, proveedor._id)
+    );
+  });
+
+  // Compatibilidad con productos antiguos
+  let selectedId = selectedSupplier;
+
+  if (selectedSupplier && typeof selectedSupplier === "object") {
+    selectedId = selectedSupplier._id;
+  }
+
+  if (!selectedId && historicalName) {
+    const proveedorHistorico = proveedores.find(
+      proveedor =>
+        proveedor.name.trim().toLowerCase() ===
+        historicalName.trim().toLowerCase()
+    );
+
+    selectedId = proveedorHistorico?._id;
+  }
+
+  supplierSelect.value = selectedId || "";
+}
+
 async function loadProduct() {
   if (!productId) return;
 
@@ -83,7 +123,10 @@ async function loadProduct() {
 
     form.elements.name.value = product.name ?? "";
     form.elements.sku.value = product.sku ?? "";
-    form.elements.supplier.value = product.supplier ?? "";
+    await loadSuppliers(
+      product.supplierRef ?? null,
+      product.supplier ?? ""
+    );
     form.elements.quantity.value = product.quantity ?? 0;
     form.elements.minStock.value = product.minStock ?? 0;
     form.elements.price.value = product.price ?? 0;
@@ -118,7 +161,7 @@ form.addEventListener("submit", async event => {
     name: String(formData.get("name") ?? "").trim(),
     sku: String(formData.get("sku") ?? "").trim(),
     category: String(formData.get("category") ?? "").trim(),
-    supplier: String(formData.get("supplier") ?? "").trim(),
+    supplierRef: String(formData.get("supplierRef") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     cost: Number(formData.get("cost") || 0),
     status: String(formData.get("status") ?? "active"),
@@ -132,7 +175,7 @@ form.addEventListener("submit", async event => {
     !product.sku ||
     !product.category ||
     product.category.toLowerCase() === "audio" ||
-    !product.supplier ||
+    !product.supplierRef ||
     !Number.isInteger(product.quantity) ||
     !Number.isInteger(product.minStock) ||
     product.quantity < 0 ||
@@ -187,6 +230,8 @@ form.addEventListener("submit", async event => {
 
 async function initializeForm() {
   try {
+    await loadSuppliers();
+
     if (productId) {
       await loadProduct();
     } else {

@@ -57,10 +57,16 @@ const productSchema = new mongoose.Schema(
         min: [1, "El stock mínimo debe ser al menos 1"],
         default: 1
     },
+   //compatibilidad con productos antiguos
     supplier: {
       type: String,
       trim: true,
       default: ""
+    },
+    supplierRef: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
+      default: null
     },
     status: {
       type: String,

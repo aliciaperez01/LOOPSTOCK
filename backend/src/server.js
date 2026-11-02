@@ -23,6 +23,7 @@ const suppliersRoutes = require("./routes/suppliers.routes");
 const importsRoutes = require("./routes/imports.routes");
 const movementsRoutes = require("./routes/movements.routes");
 const usersRoutes = require("./routes/users.routes");
+const shiftsRoutes = require("./routes/shifts.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const swaggerSpec = require("./config/swagger");
 const logger = require("./middlewares/logger");
@@ -54,6 +55,7 @@ if (process.env.FRONTEND_URL) {
 
 app.use(express.json());
 app.use(logger);
+app.use("/api/shifts", shiftsRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({

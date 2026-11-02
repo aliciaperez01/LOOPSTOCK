@@ -1,3 +1,9 @@
+const validar = require("../middlewares/validar");
+const {
+  reglasId,
+  reglasCrear,
+  reglasActualizar
+} = require("../validators/products.validator");
 
 const { Router } = require("express");
 const products = require("../controllers/products.controller.js");
@@ -32,10 +38,23 @@ productsRouter.get("/", todosLosRoles, products.listar);
 productsRouter.get("/:id", todosLosRoles, products.validarId, products.obtener);
 
 // POST /api/products - Crear producto
-productsRouter.post("/", todosLosRoles, products.crear);
+productsRouter.post(
+  "/",
+  todosLosRoles,
+  reglasCrear,
+  validar,
+  products.crear
+);
 
 // PUT /api/products/:id - Actualizar producto
-productsRouter.put("/:id", todosLosRoles, products.validarId, products.actualizar);
+productsRouter.put(
+  "/:id",
+  todosLosRoles,
+  reglasId,
+  reglasActualizar,
+  validar,
+  products.actualizar
+);
 
 // DELETE /api/products/:id - Eliminar producto (solo admin)
 productsRouter.delete("/:id", soloAdmin, products.validarId, products.eliminar);

@@ -9,4 +9,4 @@ const router = express.Router();
 router.post("/login", reglasLogin, validar, login);
 router.get("/me", verificarToken, me);
 
-module.exports = router;
+module.exports = router;

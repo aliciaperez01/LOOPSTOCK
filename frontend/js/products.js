@@ -5,6 +5,7 @@ const productCount = document.getElementById("product-count");
 const productSearch = document.getElementById("product-search");
 const categoryFilter = document.getElementById("category-filter");
 const stockFilter = document.getElementById("stock-filter");
+const statusFilter = document.getElementById("status-filter");
 const clearFiltersButton = document.getElementById("clear-filters");
 const message = document.getElementById("message");
 const refreshButton = document.getElementById("refresh-button");
@@ -59,10 +60,12 @@ async function loadProducts() {
   const search = productSearch.value.trim();
   const category = categoryFilter.value;
   const stock = stockFilter.value;
+  const status = statusFilter.value;
 
   if (search) params.set("search", search);
   if (category) params.set("category", category);
   if (stock) params.set("stock", stock);
+  if (status) params.set("status", status);
 
   try {
     const data = await apiFetch(`/products?${params.toString()}`);
@@ -239,7 +242,8 @@ function renderProducts() {
 
   productsTable.innerHTML = products.map(product => {
     const quantity = Number(product.quantity ?? 0);
-    const status = getStockStatus(product);
+    const stockStatus = getStockStatus(product);
+    const productStatus = product.status || "active";
     const numericPrice = Number(product.price);
 
     const hasValidPrice =
@@ -265,9 +269,15 @@ function renderProducts() {
         <td>${price}</td>
         <td>${escapeHTML(product.supplier || "—")}</td>
         <td>
-          <span class="badge ${getStockClass(status)}">
-            ${getStockLabel(status)}
+          <span class="badge ${getStockClass(stockStatus)}">
+            ${getStockLabel(stockStatus)}
           </span>
+
+          ${
+            productStatus === "inactive"
+              ? '<span class="badge badge-danger">INACTIVO</span>'
+              : '<span class="badge badge-success">ACTIVO</span>'
+          }
         </td>
         <td>
           <div class="product-actions">
@@ -381,6 +391,12 @@ clearFiltersButton.addEventListener("click", () => {
   productSearch.value = "";
   categoryFilter.value = "";
   stockFilter.value = "";
+  statusFilter.value = "";
+  currentPage = 1;
+  loadProducts();
+});
+
+statusFilter.addEventListener("change", () => {
   currentPage = 1;
   loadProducts();
 });

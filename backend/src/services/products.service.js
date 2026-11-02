@@ -2,6 +2,29 @@
 const mongoose = require("mongoose");
 const Product = require("../models/Product.js");
 const Movement = require("../models/Movement.js");
+const Supplier = require("../models/Supplier.js");
+
+// VALIDAR PROVEEDOR ACTIVO
+async function obtenerProveedorActivo(supplierRef) {
+  if (!supplierRef || !mongoose.isValidObjectId(supplierRef)) {
+    const error = new Error("Debes seleccionar un proveedor válido.");
+    error.status = 400;
+    throw error;
+  }
+
+  const proveedor = await Supplier.findOne({
+    _id: supplierRef,
+    active: true
+  });
+
+  if (!proveedor) {
+    const error = new Error("El proveedor no existe o está inactivo.");
+    error.status = 400;
+    throw error;
+  }
+
+  return proveedor;
+}
 
 // LISTAR, BUSCAR, FILTRAR Y PAGINAR PRODUCTOS
 async function listar(filtros = {}) {
@@ -10,6 +33,11 @@ async function listar(filtros = {}) {
   // FILTRAR POR CATEGORÍA
   if (filtros.category) {
     filtro.category = filtros.category;
+  }
+
+  // FILTRAR POR ESTADO DEL PRODUCTO
+  if (["active", "inactive"].includes(filtros.status)) {
+    filtro.status = filtros.status;
   }
 
   // BUSCAR POR NOMBRE, SKU, CATEGORÍA O PROVEEDOR
@@ -177,16 +205,32 @@ async function crear(datos) {
     throw error;
   }
 
-  return Product.create(datos);
+  const proveedor = await obtenerProveedorActivo(datos.supplierRef);
+
+  return Product.create({
+    ...datos,
+    supplierRef: proveedor._id,
+    supplier: proveedor.name
+  });
 }
 
 // ACTUALIZAR PRODUCTO
 async function actualizar(id, datos) {
-  return Product.findByIdAndUpdate(id, datos, {
-    returnDocument: "after",
-    runValidators: true,
-    upsert: false
-  });
+  const proveedor = await obtenerProveedorActivo(datos.supplierRef);
+
+  return Product.findByIdAndUpdate(
+    id,
+    {
+      ...datos,
+      supplierRef: proveedor._id,
+      supplier: proveedor.name
+    },
+    {
+      returnDocument: "after",
+      runValidators: true,
+      upsert: false
+    }
+  );
 }
 
 // ELIMINAR PRODUCTO

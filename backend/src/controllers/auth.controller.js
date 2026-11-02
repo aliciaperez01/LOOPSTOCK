@@ -1,3 +1,4 @@
+
 const authService = require("../services/auth.service");
 
 async function login(req, res) {
@@ -15,4 +16,20 @@ function me(req, res) {
   res.status(200).json({ user: req.user });
 }
 
-module.exports = { login, me };
+async function cambiarPassword(req, res) {
+  const { currentPassword, newPassword } = req.body || {};
+
+  const resultado = await authService.cambiarPassword(
+    req.user._id,
+    currentPassword,
+    newPassword
+  );
+
+  res.status(200).json(resultado);
+}
+
+module.exports = {
+  login,
+  me,
+  cambiarPassword
+};

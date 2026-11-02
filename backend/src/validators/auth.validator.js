@@ -6,4 +6,16 @@ const reglasLogin = [
   body("password").notEmpty().withMessage("La contraseña es obligatoria")
 ];
 
-module.exports = { reglasLogin };
+const reglasCambioPassword = [
+  body("currentPassword")
+    .notEmpty().withMessage("La contraseña actual es obligatoria"),
+
+  body("newPassword")
+    .isString().withMessage("La nueva contraseña debe ser texto")
+    .isLength({ min: 8 }).withMessage("La nueva contraseña debe tener al menos 8 caracteres")
+];
+
+module.exports = {
+  reglasLogin,
+  reglasCambioPassword
+};

@@ -112,4 +112,84 @@ describe("GET /api/auth/me", () => {
     expect(res.status).toBe(200);
     expect(res.body.user.email).toBe("admin@test.com");
   });
+describe("PATCH /api/auth/password", () => {
+  async function crearUsuarioYObtenerToken() {
+    await User.create({
+      name: "Admin Test",
+      email: "password@test.com",
+      password: "password123",
+      role: "admin"
+    });
+
+    const login = await request(app)
+      .post("/api/auth/login")
+      .send({
+        email: "password@test.com",
+        password: "password123"
+      });
+    return login.body.token;
+  }
+  test("sin token → 401", async () => {
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .send({
+        currentPassword: "password123",
+        newPassword: "nuevaPassword123"
+      });
+    expect(res.status).toBe(401);
+  });
+  test("contraseña actual incorrecta → 400", async () => {
+    const token = await crearUsuarioYObtenerToken();
+
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        currentPassword: "incorrecta123",
+        newPassword: "nuevaPassword123"
+      });
+    expect(res.status).toBe(400);
+  });
+  test("nueva contraseña demasiado corta → 400", async () => {
+    const token = await crearUsuarioYObtenerToken();
+    const res = await request(app)
+      .patch("/api/auth/password")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        currentPassword: "password123",
+        newPassword: "123"
+      });
+    expect(res.status).toBe(400);
+  });
+  test("cambio correcto → 200 y permite iniciar sesión con la nueva contraseña", async () => {
+    const token = await crearUsuarioYObtenerToken();
+
+    const cambio = await request(app)
+      .patch("/api/auth/password")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        currentPassword: "password123",
+        newPassword: "nuevaPassword123"
+      });
+
+    expect(cambio.status).toBe(200);
+
+    const loginAnterior = await request(app)
+      .post("/api/auth/login")
+      .send({
+        email: "password@test.com",
+        password: "password123"
+      });
+    expect(loginAnterior.status).toBe(401);
+
+    const loginNuevo = await request(app)
+      .post("/api/auth/login")
+      .send({
+        email: "password@test.com",
+        password: "nuevaPassword123"
+      });
+
+    expect(loginNuevo.status).toBe(200);
+  });
+});
 });

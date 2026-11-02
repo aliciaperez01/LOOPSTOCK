@@ -1,7 +1,6 @@
 
 const mongoose = require("mongoose");
 const Product = require("../models/Product.js");
-const Movement = require("../models/Movement.js");
 const Supplier = require("../models/Supplier.js");
 
 // VALIDAR PROVEEDOR ACTIVO
@@ -36,9 +35,13 @@ async function listar(filtros = {}) {
   }
 
   // FILTRAR POR ESTADO DEL PRODUCTO
-  if (["active", "inactive"].includes(filtros.status)) {
-    filtro.status = filtros.status;
-  }
+if (["active", "inactive"].includes(filtros.status)) {
+  filtro.status = filtros.status;
+} else {
+  // Por defecto, mostrar solo productos activos.
+  // También incluye productos antiguos sin campo status.
+  filtro.status = { $ne: "inactive" };
+}
 
   // BUSCAR POR NOMBRE, SKU, CATEGORÍA O PROVEEDOR
   if (filtros.search) {
@@ -233,29 +236,17 @@ async function actualizar(id, datos) {
   );
 }
 
-// ELIMINAR PRODUCTO
-// No permite eliminar productos que tengan movimientos asociados
+// BAJA LÓGICA DE PRODUCTOS
 async function eliminar(id) {
-  const producto = await Product.findById(id);
-
-  if (!producto) {
-    return null;
-  }
-
-  const tieneMovimientos = await Movement.exists({
-    product: producto._id
-  });
-
-  if (tieneMovimientos) {
-    const error = new Error(
-      "No se puede eliminar este producto porque tiene movimientos asociados."
-    );
-
-    error.status = 409;
-    throw error;
-  }
-
-  return Product.findByIdAndDelete(id);
+  return Product.findByIdAndUpdate(
+    id,
+    { status: "inactive" },
+    {
+      returnDocument: "after",
+      runValidators: true,
+      upsert: false
+    }
+  );
 }
 
 // VALIDAR ID

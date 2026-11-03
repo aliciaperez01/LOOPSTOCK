@@ -36,12 +36,13 @@ async function crear(datos) {
   return User.create(filtrarCampos(datos));
 }
 
-// DESACTIVAR USUARIO (baja lógica). Un admin no puede desactivarse a sí mismo
-async function desactivar(id, idSolicitante) {
+// ELIMINAR USUARIO (borrado físico). Un admin no puede eliminarse a sí mismo
+async function eliminar(id, idSolicitante) {
   if (String(id) === String(idSolicitante)) {
-    throw new AppError("No puedes desactivar tu propio usuario", 400);
+    throw new AppError("No puedes eliminar tu propio usuario", 400);
   }
-  return User.findByIdAndUpdate(id, { active: false }, { returnDocument: "after" });
+
+  return User.findByIdAndDelete(id);
 }
 
 function esIdValido(id) {
@@ -51,6 +52,6 @@ function esIdValido(id) {
 module.exports = {
   listar,
   crear,
-  desactivar,
+  eliminar,
   esIdValido
 };

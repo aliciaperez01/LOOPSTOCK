@@ -22,7 +22,7 @@ usersRouter.get("/", reglasListar, validar, users.listar);
 // POST /api/users - Crear usuario (role opcional, por defecto "empleado")
 usersRouter.post("/", reglasCrear, validar, users.crear);
 
-// DELETE /api/users/:id - Desactivar usuario (baja lógica)
-usersRouter.delete("/:id", reglasId, validar, users.desactivar);
+// DELETE /api/users/:id - Eliminar usuario
+usersRouter.delete("/:id", reglasId, validar, users.eliminar);
 
 module.exports = usersRouter;

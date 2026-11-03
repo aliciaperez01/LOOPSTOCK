@@ -1,5 +1,3 @@
-// FASE 2 — preparado, pero todavía SIN conectar en movements.routes.js.
-// Se conecta cuando movements.* esté en main (T23, de Ali).
 const { body, query } = require("express-validator");
 
 const reglasCrear = [

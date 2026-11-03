@@ -1,4 +1,3 @@
-// Pendiente de conectar en movements.routes.js
 const { body, query } = require("express-validator");
 
 const reglasCrear = [

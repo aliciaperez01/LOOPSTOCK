@@ -2,6 +2,8 @@
 const { Router } = require("express");
 const movements = require("../controllers/movements.controller.js");
 const { verificarToken } = require("../middlewares/auth.middleware.js");
+const validar = require("../middlewares/validar");
+const { reglasCrear, reglasListar } = require("../validators/movements.validator");
 
 const movementsRouter = Router();
 
@@ -9,9 +11,9 @@ const movementsRouter = Router();
 movementsRouter.use(verificarToken);
 
 // GET /api/movements - Listar movimientos
-movementsRouter.get("/", movements.listar);
+movementsRouter.get("/", reglasListar, validar, movements.listar);
 
 // POST /api/movements - Registrar entrada o salida
-movementsRouter.post("/", movements.crear);
+movementsRouter.post("/", reglasCrear, validar, movements.crear);
 
 module.exports = movementsRouter;

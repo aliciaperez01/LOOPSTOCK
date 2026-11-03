@@ -58,6 +58,46 @@ async function loadCategories(selectedCategory = "") {
   populateCategories(products, selectedCategory);
 }
 
+// CARGAR PROVEEDORES ACTIVOS
+async function loadSuppliers(selectedSupplier = null, historicalName = "") {
+  const supplierSelect = form.elements.namedItem("supplierRef");
+
+  const proveedores = await apiFetch("/suppliers?active=true");
+
+  if (!Array.isArray(proveedores)) {
+    throw new Error("La API no ha devuelto una lista válida de proveedores.");
+  }
+
+  supplierSelect.replaceChildren(
+    new Option("Selecciona un proveedor", "")
+  );
+
+  proveedores.forEach(proveedor => {
+    supplierSelect.add(
+      new Option(proveedor.name, proveedor._id)
+    );
+  });
+
+  // Compatibilidad con productos antiguos
+  let selectedId = selectedSupplier;
+
+  if (selectedSupplier && typeof selectedSupplier === "object") {
+    selectedId = selectedSupplier._id;
+  }
+
+  if (!selectedId && historicalName) {
+    const proveedorHistorico = proveedores.find(
+      proveedor =>
+        proveedor.name.trim().toLowerCase() ===
+        historicalName.trim().toLowerCase()
+    );
+
+    selectedId = proveedorHistorico?._id;
+  }
+
+  supplierSelect.value = selectedId || "";
+}
+
 async function loadProduct() {
   if (!productId) return;
 
@@ -66,24 +106,27 @@ async function loadProduct() {
   formMessage.textContent = "Cargando datos del producto...";
 
   try {
-    const data = await apiFetch("/products");
-    const products = Array.isArray(data) ? data : data?.items;
+    // Recuperar directamente el producto mediante su ID
+    const product = await apiFetch(
+      `/products/${encodeURIComponent(productId)}`
+    );
 
-    if (!Array.isArray(products)) {
-      throw new Error("La API no ha devuelto una lista válida.");
-    }
-
-    const product = products.find(item => item._id === productId);
-
-    if (!product) {
+    if (!product || !product._id) {
       throw new Error("No se ha encontrado el producto.");
     }
 
-    populateCategories(products, product.category ?? "");
+    // Cargar categorías conservando la del producto
+    await loadCategories(product.category ?? "");
 
+    // Cargar proveedores y seleccionar el correspondiente
+    await loadSuppliers(
+      product.supplierRef ?? null,
+      product.supplier ?? ""
+    );
+
+    // Rellenar el formulario
     form.elements.name.value = product.name ?? "";
     form.elements.sku.value = product.sku ?? "";
-    form.elements.supplier.value = product.supplier ?? "";
     form.elements.quantity.value = product.quantity ?? 0;
     form.elements.minStock.value = product.minStock ?? 0;
     form.elements.price.value = product.price ?? 0;
@@ -92,6 +135,7 @@ async function loadProduct() {
     form.elements.status.value = product.status ?? "active";
 
     formMessage.textContent = "";
+
   } catch (error) {
     formMessage.textContent = error.message;
   }
@@ -118,7 +162,7 @@ form.addEventListener("submit", async event => {
     name: String(formData.get("name") ?? "").trim(),
     sku: String(formData.get("sku") ?? "").trim(),
     category: String(formData.get("category") ?? "").trim(),
-    supplier: String(formData.get("supplier") ?? "").trim(),
+    supplierRef: String(formData.get("supplierRef") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     cost: Number(formData.get("cost") || 0),
     status: String(formData.get("status") ?? "active"),
@@ -132,7 +176,7 @@ form.addEventListener("submit", async event => {
     !product.sku ||
     !product.category ||
     product.category.toLowerCase() === "audio" ||
-    !product.supplier ||
+    !product.supplierRef ||
     !Number.isInteger(product.quantity) ||
     !Number.isInteger(product.minStock) ||
     product.quantity < 0 ||
@@ -187,6 +231,8 @@ form.addEventListener("submit", async event => {
 
 async function initializeForm() {
   try {
+    await loadSuppliers();
+
     if (productId) {
       await loadProduct();
     } else {

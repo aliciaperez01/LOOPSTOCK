@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const { connectDB } = require("../config/db");
 const Supplier = require("../models/Supplier");
 
-// Uso único (T17): sustituye el índice antiguo name_1 por name_unico_ci
+// Script de un solo uso: sustituye el índice antiguo name_1 por name_unico_ci
 async function main() {
   await connectDB();
 

@@ -8,6 +8,7 @@ async function listar(req, res, next) {
       category: req.query.category,
       search: req.query.search,
       stock: req.query.stock,
+      status: req.query.status,
       page: req.query.page,
       limit: req.query.limit
     };

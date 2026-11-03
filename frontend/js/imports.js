@@ -24,6 +24,13 @@ const errorsTable = document.getElementById("errors-table");
 const historyTable = document.getElementById("history-table");
 const historyCount = document.getElementById("history-count");
 
+const pendingSection = document.getElementById("pending-suppliers-section");
+const pendingMessage = document.getElementById("pending-suppliers-message");
+const pendingList = document.getElementById("pending-suppliers-list");
+const saveSuppliersButton = document.getElementById("save-suppliers-button");
+
+let importacionActualId = null;
+
 const TAMANO_MAXIMO = 2 * 1024 * 1024;
 
 const ESTADOS = {
@@ -75,7 +82,114 @@ function mostrarResultado(job, titulo) {
   `).join("");
 
   resultSection.hidden = false;
+  cargarPendientes(job._id);
   resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+pendingList.addEventListener("change", actualizarBotonProveedores);
+
+saveSuppliersButton.addEventListener("click", async () => {
+  const selects = [
+    ...pendingList.querySelectorAll(".pending-supplier-select")
+  ];
+
+  const asignaciones = selects.map((select) => ({
+    productId: select.dataset.productId,
+    supplierId: select.value
+  }));
+
+  if (asignaciones.some((a) => !a.supplierId)) {
+    mostrarMensaje("Selecciona un proveedor para cada producto.", "error");
+    return;
+  }
+
+  saveSuppliersButton.disabled = true;
+  saveSuppliersButton.textContent = "Guardando...";
+
+  try {
+    const resultado = await apiFetch(
+      `/imports/${encodeURIComponent(importacionActualId)}/assign-suppliers`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ asignaciones })
+      }
+    );
+
+    mostrarMensaje(resultado.mensaje, "ok");
+
+    await cargarPendientes(importacionActualId);
+    await loadHistory();
+  } catch (error) {
+    mostrarMensaje(mensajeDeError(error), "error");
+  } finally {
+    saveSuppliersButton.textContent = "Guardar proveedores";
+    actualizarBotonProveedores();
+  }
+});
+
+async function cargarPendientes(jobId) {
+  importacionActualId = jobId;
+  pendingSection.hidden = true;
+  pendingList.innerHTML = "";
+
+  try {
+    const datos = await apiFetch(
+      `/imports/${encodeURIComponent(jobId)}/pending-suppliers`
+    );
+
+    const productos = datos.productos || [];
+    const proveedores = datos.proveedores || [];
+
+    if (productos.length === 0) {
+      pendingSection.hidden = true;
+      return;
+    }
+
+    pendingSection.hidden = false;
+    pendingMessage.textContent =
+      `${productos.length} producto(s) necesitan proveedor.`;
+
+    pendingList.innerHTML = productos.map((item) => {
+      const product = item.product || {};
+
+      return `
+        <div class="form-group">
+          <label>
+            ${escaparHtml(product.name || item.name)}
+            (${escaparHtml(product.sku || item.sku)})
+          </label>
+
+          <select
+            class="pending-supplier-select"
+            data-product-id="${escaparHtml(item.product?._id || item.product)}"
+          >
+            <option value="">Selecciona un proveedor</option>
+
+            ${proveedores.map((supplier) => `
+              <option value="${escaparHtml(supplier._id)}">
+                ${escaparHtml(supplier.name)}
+              </option>
+            `).join("")}
+          </select>
+        </div>
+      `;
+    }).join("");
+
+    actualizarBotonProveedores();
+  } catch (error) {
+    mostrarMensaje(mensajeDeError(error), "error");
+  }
+}
+
+function actualizarBotonProveedores() {
+  const selects = [
+    ...pendingList.querySelectorAll(".pending-supplier-select")
+  ];
+
+  saveSuppliersButton.disabled =
+    selects.length === 0 ||
+    selects.some((select) => !select.value);
 }
 
 // =========================================

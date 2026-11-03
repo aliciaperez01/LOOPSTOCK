@@ -30,7 +30,16 @@ const importJobSchema = new mongoose.Schema(
     totalRows: { type: Number, default: 0, min: 0 },
     insertedRows: { type: Number, default: 0, min: 0 },
     errorRows: { type: Number, default: 0, min: 0 },
-    rowErrors: { type: [rowErrorSchema], default: [] }
+    rowErrors: { type: [rowErrorSchema], default: [] },
+    pendingSupplierProducts: [{
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true
+    },
+    sku: { type: String, default: "" },
+    name: { type: String, default: "" }
+  }],
   },
   { timestamps: true }
 );

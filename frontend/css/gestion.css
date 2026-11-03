@@ -1,26 +1,7 @@
 /* =========================================
-   LOOPSTOCK - PROVEEDORES E IMPORTACIONES
-   MOBILE FIRST
+   1. TARJETAS Y CONTENIDO
    ========================================= */
 
-/* Sesión en el menú lateral */
-.sidebar-session {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.sidebar-user {
-  padding: 0 12px;
-  font-size: 0.8rem;
-  opacity: 0.8;
-  overflow-wrap: anywhere;
-}
-
-/* Tarjetas de contenido */
 .gestion-card {
   margin-bottom: 24px;
 }
@@ -42,7 +23,10 @@
   font-size: 0.85em;
 }
 
-/* Filtros */
+/* =========================================
+   2. FILTROS Y CAMPOS
+   ========================================= */
+
 .gestion-filters {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -77,25 +61,42 @@
   box-shadow: 0 0 0 3px rgba(24, 133, 107, 0.14);
 }
 
-/* Mensajes */
+/* =========================================
+   3. MENSAJES
+   ========================================= */
+
 .gestion-message {
   min-height: 1.5em;
   margin: 8px 0;
   font-weight: 600;
 }
 
-.gestion-message[data-tipo="ok"] { color: var(--success); }
-.gestion-message[data-tipo="aviso"] { color: var(--warning); }
-.gestion-message[data-tipo="error"] { color: var(--danger); }
+.gestion-message[data-tipo="ok"] {
+  color: var(--success);
+}
 
-/* Acciones de la tabla */
+.gestion-message[data-tipo="aviso"] {
+  color: var(--warning);
+}
+
+.gestion-message[data-tipo="error"] {
+  color: var(--danger);
+}
+
+/* =========================================
+   4. ACCIONES DE TABLAS
+   ========================================= */
+
 .gestion-actions {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* Modal con formulario (sin iframe: altura según el contenido) */
+/* =========================================
+   5. MODALES Y FORMULARIOS
+   ========================================= */
+
 .product-modal.gestion-modal {
   height: auto;
   max-height: 94vh;
@@ -114,7 +115,10 @@
   resize: vertical;
 }
 
-/* Subida de CSV */
+/* ========================================
+   6. IMPORTACIÓN DE ARCHIVOS
+   ========================================= */
+
 .gestion-upload {
   display: flex;
   flex-direction: column;
@@ -125,7 +129,10 @@
   padding: 8px;
 }
 
-/* Resumen de la importación */
+/* =========================================
+   7. RESUMEN DE IMPORTACIÓN
+   ========================================= */
+
 .gestion-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -153,8 +160,12 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Tablet y escritorio */
+/* =========================================
+   8. TABLET Y ESCRITORIO
+   ========================================= */
+
 @media (min-width: 768px) {
+
   .gestion-filters {
     grid-template-columns: minmax(0, 1fr) 200px;
   }
@@ -171,4 +182,45 @@
   .gestion-upload .form-group {
     flex: 1;
   }
+
+  /* =========================================
+   9. FILTROS DEL PANEL DE USUARIOS
+========================================= */
+
+.users-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.users-toolbar .section-header {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+.users-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.users-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+
+.users-filters select {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: max-content;
+  max-width: 100%;
+}
+
 }

@@ -5,6 +5,7 @@ const productCount = document.getElementById("product-count");
 const productSearch = document.getElementById("product-search");
 const categoryFilter = document.getElementById("category-filter");
 const stockFilter = document.getElementById("stock-filter");
+const statusFilter = document.getElementById("status-filter");
 const clearFiltersButton = document.getElementById("clear-filters");
 const message = document.getElementById("message");
 const refreshButton = document.getElementById("refresh-button");
@@ -59,10 +60,12 @@ async function loadProducts() {
   const search = productSearch.value.trim();
   const category = categoryFilter.value;
   const stock = stockFilter.value;
+  const status = statusFilter.value;
 
   if (search) params.set("search", search);
   if (category) params.set("category", category);
   if (stock) params.set("stock", stock);
+  if (status) params.set("status", status);
 
   try {
     const data = await apiFetch(`/products?${params.toString()}`);
@@ -222,8 +225,6 @@ async function updateCategoryOptions() {
   }
 }
 
-
-// Mostrar productos
 function renderProducts() {
   productCount.textContent =
     `${numberFormatter.format(totalProducts)} producto(s) encontrado(s)`;
@@ -239,7 +240,8 @@ function renderProducts() {
 
   productsTable.innerHTML = products.map(product => {
     const quantity = Number(product.quantity ?? 0);
-    const status = getStockStatus(product);
+    const stockStatus = getStockStatus(product);
+    const productStatus = product.status || "active";
     const numericPrice = Number(product.price);
 
     const hasValidPrice =
@@ -258,35 +260,76 @@ function renderProducts() {
 
     return `
       <tr>
-        <td>${escapeHTML(product.name)}</td>
-        <td>${escapeHTML(product.sku)}</td>
-        <td>${escapeHTML(product.category)}</td>
-        <td>${numberFormatter.format(quantity)}</td>
-        <td>${price}</td>
-        <td>${escapeHTML(product.supplier || "—")}</td>
-        <td>
-          <span class="badge ${getStockClass(status)}">
-            ${getStockLabel(status)}
-          </span>
+        <td class="col-product">
+          ${escapeHTML(product.name)}
         </td>
-        <td>
+
+        <td class="col-sku">
+          SKU: ${escapeHTML(product.sku)}
+        </td>
+
+        <td class="col-category">
+          ${escapeHTML(product.category)}
+        </td>
+
+        <td class="col-quantity">
+          ${numberFormatter.format(quantity)}
+        </td>
+
+        <td class="col-price">
+          ${price}
+        </td>
+
+        <td class="col-supplier">
+          ${escapeHTML(product.supplier || "—")}
+        </td>
+
+        <td class="col-status">
+          <span class="badge ${getStockClass(stockStatus)}">
+            ${getStockLabel(stockStatus)}
+          </span>
+
+          ${
+            productStatus === "inactive"
+              ? '<span class="badge badge-danger">INACTIVO</span>'
+              : '<span class="badge badge-success">ACTIVO</span>'
+          }
+        </td>
+
+        <td class="col-actions">
           <div class="product-actions">
             <a href="${editUrl}" class="btn btn-secondary"
                aria-label="Editar ${escapeHTML(product.name)}">
               ✎ Editar
             </a>
+
             <button type="button" class="btn btn-danger"
                     data-delete-id="${escapeHTML(product._id)}"
                     data-delete-name="${escapeHTML(product.name)}">
               🗑 Eliminar
             </button>
           </div>
+
+          <button
+            type="button"
+            class="product-details-toggle"
+            aria-expanded="false"
+          >
+            Ver más detalles ↓
+          </button>
+
+          <div class="product-extra-details" hidden>
+            <p><strong>Categoría:</strong> ${escapeHTML(product.category || "—")}</p>
+            <p><strong>Unidades:</strong> ${numberFormatter.format(quantity)}</p>
+            <p><strong>Proveedor:</strong> ${escapeHTML(product.supplier || "—")}</p>
+            <p><strong>Stock:</strong> ${getStockLabel(stockStatus)}</p>
+            <p><strong>Estado:</strong> ${productStatus === "inactive" ? "Inactivo" : "Activo"}</p>
+          </div>
         </td>
       </tr>
     `;
   }).join("");
 }
-
 
 // Evitar insertar HTML no seguro
 function escapeHTML(value) {
@@ -381,6 +424,12 @@ clearFiltersButton.addEventListener("click", () => {
   productSearch.value = "";
   categoryFilter.value = "";
   stockFilter.value = "";
+  statusFilter.value = "";
+  currentPage = 1;
+  loadProducts();
+});
+
+statusFilter.addEventListener("change", () => {
   currentPage = 1;
   loadProducts();
 });
@@ -408,6 +457,26 @@ nextPageButton.addEventListener("click", async () => {
 
 // Eliminar productos
 productsTable.addEventListener("click", async event => {
+    // Desplegar u ocultar detalles del producto
+  const detailsButton = event.target.closest(".product-details-toggle");
+
+  if (detailsButton) {
+    const details = detailsButton
+      .closest(".col-actions")
+      .querySelector(".product-extra-details");
+
+    const isExpanded = detailsButton.getAttribute("aria-expanded") === "true";
+
+    details.hidden = isExpanded;
+    detailsButton.setAttribute("aria-expanded", String(!isExpanded));
+
+    detailsButton.textContent = isExpanded
+      ? "Ver más detalles ↓"
+      : "Ver menos detalles ↑";
+
+    return;
+  }
+
   const button = event.target.closest("[data-delete-id]");
   if (!button) return;
 

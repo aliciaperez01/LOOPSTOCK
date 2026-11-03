@@ -5,8 +5,7 @@ require("dotenv").config();
 
 const esProduccion = process.env.NODE_ENV === "production";
 
-// ── Validación de variables obligatorias ──────────────────────────
-// En producción también se exige FRONTEND_URL para no dejar CORS abierto.
+// Variables obligatorias (en producción también FRONTEND_URL)
 const REQUIRED_VARS = ["JWT_SECRET", "MONGODB_URI"];
 if (esProduccion) REQUIRED_VARS.push("FRONTEND_URL");
 const missing = REQUIRED_VARS.filter((v) => !process.env[v]);
@@ -24,6 +23,7 @@ const suppliersRoutes = require("./routes/suppliers.routes");
 const importsRoutes = require("./routes/imports.routes");
 const movementsRoutes = require("./routes/movements.routes");
 const usersRoutes = require("./routes/users.routes");
+const shiftsRoutes = require("./routes/shifts.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const swaggerSpec = require("./config/swagger");
 const logger = require("./middlewares/logger");
@@ -33,9 +33,7 @@ const manejarErrores = require("./middlewares/manejarErrores");
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// ── CORS configurado ──────────────────────────────────────────────
-// FRONTEND_URL admite varias URLs separadas por comas (local + Render).
-// Se quita la barra final porque el navegador envía el Origin sin ella.
+// CORS: FRONTEND_URL puede tener varias URLs separadas por comas
 if (process.env.FRONTEND_URL) {
   const allowedOrigins = process.env.FRONTEND_URL
     .split(",")
@@ -45,10 +43,7 @@ if (process.env.FRONTEND_URL) {
   app.use(
     cors({
       origin(origin, callback) {
-        // origin es undefined en peticiones sin navegador (curl, Postman, Swagger
-        // servido por la propia API), así que se permiten.
-        // Con un origen no permitido se responde sin cabeceras CORS (false):
-        // el navegador bloquea la respuesta y la API no devuelve un 500.
+        // Sin origin (curl, Postman) se permite; si no está en la lista, el navegador la bloquea
         callback(null, !origin || allowedOrigins.includes(origin));
       },
     })
@@ -60,6 +55,7 @@ if (process.env.FRONTEND_URL) {
 
 app.use(express.json());
 app.use(logger);
+app.use("/api/shifts", shiftsRoutes);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -86,10 +82,7 @@ app.use(manejarErrores);
 
 async function startServer() {
   try {
-    // En las pruebas (Jest), ni se conecta ni se abre un puerto real: es el
-    // propio test (tests/helpers/db.js) quien conecta a su Mongo en memoria
-    // y espera a que termine, para que un fallo de conexión se vea en el
-    // test y no se pierda en esta función (que nadie espera).
+    // En los tests conecta tests/helpers/db.js (Mongo en memoria)
     if (process.env.NODE_ENV !== "test") {
       await connectDB();
       app.listen(PORT, () => {

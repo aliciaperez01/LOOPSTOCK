@@ -110,22 +110,52 @@ describe("procesarFilas", () => {
     expect(errores[0].message).toMatch(/"price" debe ser un número/);
   });
 
-  test("proveedor indicado pero inexistente/inactivo → error", async () => {
+  test("proveedor inexistente o inactivo → queda pendiente", async () => {
     const filas = [
-      { sku: "abc1", name: "Mesa", category: "Mezcladoras", quantity: "3", price: "10", supplier: "Fantasma SA" }
+      {
+        sku: "abc1",
+        name: "Mesa",
+        category: "Mezcladoras",
+        quantity: "3",
+        price: "10",
+        supplier: "Fantasma SA"
+      }
     ];
-    const { errores } = await procesarFilas(filas, sinExtras);
-    expect(errores[0].message).toMatch(/no existe o está inactivo/);
+
+    const { validos, errores } = await procesarFilas(filas, sinExtras);
+
+    expect(errores).toHaveLength(0);
+    expect(validos).toHaveLength(1);
+    expect(validos[0].producto.supplier).toBe("");
+    expect(validos[0].producto.supplierRef).toBeNull();
+    expect(validos[0].pendienteProveedor).toBe(true);
   });
 
   test("proveedor existente y activo → se normaliza al nombre guardado", async () => {
-    const filas = [
-      { sku: "abc1", name: "Mesa", category: "Mezcladoras", quantity: "3", price: "10", supplier: "pioneer dj" }
-    ];
-    const { validos } = await procesarFilas(filas, {
+  const filas = [
+    {
+      sku: "abc1",
+      name: "Mesa",
+      category: "Mezcladoras",
+      quantity: "3",
+      price: "10",
+      supplier: "pioneer dj"
+    }
+  ];
+
+  const idProveedor = "652f1f2b1c4a2a0012345678";
+
+  const { validos, errores } = await procesarFilas(filas, {
       ...sinExtras,
-      proveedoresActivos: new Map([["pioneer dj", "Pioneer DJ"]])
+      proveedoresActivos: new Map([
+        ["pioneer dj", { name: "Pioneer DJ", _id: idProveedor }]
+      ])
     });
+
+    expect(errores).toHaveLength(0);
+    expect(validos).toHaveLength(1);
     expect(validos[0].producto.supplier).toBe("Pioneer DJ");
+    expect(validos[0].producto.supplierRef.toString()).toBe(idProveedor);
+    expect(validos[0].pendienteProveedor).toBe(false);
   });
 });

@@ -1,6 +1,10 @@
-const { body, query } = require("express-validator");
+<<<<<<< HEAD
+=======
+// Pendiente de conectar en movements.routes.js
+>>>>>>> origin/main
+  
 
-const reglasCrear = [
+
   body("product").isMongoId().withMessage("El producto no tiene un id válido"),
   body("type").isIn(["entrada", "salida"]).withMessage("El tipo debe ser entrada o salida"),
   body("quantity").isInt({ min: 1 }).withMessage("La cantidad debe ser al menos 1").toInt(),

@@ -1,0 +1,404 @@
+
+tags:
+  - name: Productos
+    description: Gestión del inventario de productos DJ
+
+paths:
+  /api/products:
+    get:
+      tags:
+        - Productos
+      summary: Listar productos
+      description: >
+        Lista productos con búsqueda, filtros y paginación.
+        Por defecto solo muestra productos activos.
+        Se pueden consultar los inactivos mediante status=inactive.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Número de página.
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: Número de resultados por página.
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filtrar por categoría.
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Buscar por nombre, SKU, categoría o proveedor.
+        - in: query
+          name: stock
+          schema:
+            type: string
+            enum: [available, low, out]
+          description: Filtrar por estado del stock.
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [active, inactive]
+          description: Estado del producto.
+      responses:
+        "200":
+          description: Listado de productos obtenido correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pages:
+                    type: integer
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+    post:
+      tags:
+        - Productos
+      summary: Crear producto
+      description: >
+        Crea un producto asociado a un proveedor activo.
+        El stock inicial debe ser al menos 1 unidad.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        "201":
+          description: Producto creado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Datos incorrectos o proveedor inexistente o inactivo.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "409":
+          description: El SKU ya existe.
+
+  /api/products/stats:
+    get:
+      tags:
+        - Productos
+      summary: Obtener estadísticas del inventario
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Estadísticas generales del inventario.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductStats"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+  /api/products/categories:
+    get:
+      tags:
+        - Productos
+      summary: Obtener categorías disponibles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de categorías.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+  /api/products/low-stock:
+    get:
+      tags:
+        - Productos
+      summary: Listar productos con stock bajo
+      description: Devuelve productos cuya cantidad es menor o igual al stock mínimo.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Productos con stock bajo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+
+  /api/products/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdMongo"
+
+    get:
+      tags:
+        - Productos
+      summary: Obtener producto por ID
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Producto encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: ID de producto no válido.
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "404":
+          description: Producto no encontrado.
+
+    put:
+      tags:
+        - Productos
+      summary: Actualizar producto
+      description: Actualiza los datos de un producto y valida su proveedor activo.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Producto actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Datos incorrectos o proveedor inválido.
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "404":
+          description: Producto no encontrado.
+
+    delete:
+      tags:
+        - Productos
+      summary: Dar de baja un producto
+      description: >
+        Marca el producto como inactive. No elimina físicamente
+        el documento de la base de datos. Solo disponible para administradores.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Producto dado de baja correctamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: Producto eliminado correctamente
+                  producto:
+                    $ref: "#/components/schemas/Product"
+        "400":
+          description: ID de producto no válido.
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/SinPermiso"
+        "404":
+          description: Producto no encontrado.
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "6718f0c2a1b2c3d4e5f60789"
+        name:
+          type: string
+          example: Pioneer DJ XDJ-RX3
+        sku:
+          type: string
+          example: PIO-XDJ-RX3
+        brand:
+          type: string
+          example: Pioneer DJ
+        model:
+          type: string
+          example: XDJ-RX3
+        category:
+          type: string
+          example: Controladoras DJ
+        description:
+          type: string
+          example: Sistema DJ todo en uno
+        price:
+          type: number
+          minimum: 0
+          example: 1999.99
+        cost:
+          type: number
+          minimum: 0
+          example: 1500
+        quantity:
+          type: integer
+          minimum: 0
+          example: 5
+        minStock:
+          type: integer
+          minimum: 1
+          example: 2
+        supplier:
+          type: string
+          example: Proveedor DJ
+        supplierRef:
+          type: string
+          nullable: true
+          example: "6718f0c2a1b2c3d4e5f60789"
+        status:
+          type: string
+          enum: [active, inactive]
+          example: active
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProductCreate:
+      type: object
+      required:
+        - name
+        - sku
+        - category
+        - price
+        - quantity
+        - minStock
+        - supplierRef
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        cost:
+          type: number
+          minimum: 0
+        quantity:
+          type: integer
+          minimum: 1
+        minStock:
+          type: integer
+          minimum: 1
+        supplier:
+          type: string
+        supplierRef:
+          type: string
+          example: "6718f0c2a1b2c3d4e5f60789"
+        status:
+          type: string
+          enum: [active, inactive]
+
+    ProductUpdate:
+      type: object
+      required:
+        - supplierRef
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        cost:
+          type: number
+          minimum: 0
+        quantity:
+          type: integer
+          minimum: 0
+        minStock:
+          type: integer
+          minimum: 1
+        supplier:
+          type: string
+        supplierRef:
+          type: string
+          example: "6718f0c2a1b2c3d4e5f60789"
+        status:
+          type: string
+          enum: [active, inactive]
+
+    ProductStats:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+          example: 25
+        totalUnits:
+          type: integer
+          example: 120
+        inventoryValue:
+          type: number
+          example: 25000
+        lowStock:
+          type: integer
+          example: 4

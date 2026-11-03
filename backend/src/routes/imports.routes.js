@@ -19,6 +19,22 @@ importsRouter.post("/", subirCsv("file"), imports.importar);
 // GET /api/imports - Historial de importaciones
 importsRouter.get("/", imports.listar);
 
+// Consultar productos pendientes de proveedor
+importsRouter.get(
+  "/:id/pending-suppliers",
+  reglasId,
+  validar,
+  imports.listarProveedoresPendientes
+);
+
+// Asignar proveedores a productos pendientes
+importsRouter.put(
+  "/:id/assign-suppliers",
+  reglasId,
+  validar,
+  imports.asignarProveedores
+);
+
 // GET /api/imports/:id - Detalle con errores por fila
 importsRouter.get("/:id", reglasId, validar, imports.obtener);
 

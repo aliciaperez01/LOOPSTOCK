@@ -1,3 +1,4 @@
+
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
@@ -15,8 +16,9 @@ async function login(email, password) {
     throw new AppError("Email y contraseña son obligatorios", 400);
   }
 
-  const user = await User.findOne({ email: email.toLowerCase().trim() })
-    .select("+password");
+  const user = await User.findOne({
+    email: email.toLowerCase().trim()
+  }).select("+password");
 
   // Mismo mensaje si no existe o si la contraseña falla
   if (!user || !(await user.comparePassword(password))) {
@@ -30,4 +32,44 @@ async function login(email, password) {
   return { token: signToken(user), user };
 }
 
-module.exports = { login, signToken };
+async function cambiarPassword(userId, currentPassword, newPassword) {
+  if (!currentPassword || !newPassword) {
+    throw new AppError(
+      "La contraseña actual y la nueva son obligatorias",
+      400
+    );
+  }
+
+  if (typeof newPassword !== "string" || newPassword.length < 8) {
+    throw new AppError(
+      "La nueva contraseña debe tener al menos 8 caracteres",
+      400
+    );
+  }
+
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    throw new AppError("Usuario no encontrado", 404);
+  }
+
+  const coincide = await user.comparePassword(currentPassword);
+
+  if (!coincide) {
+    throw new AppError(
+      "La contraseña actual es incorrecta",
+      400
+    );
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return { message: "Contraseña actualizada correctamente" };
+}
+
+module.exports = {
+  login,
+  signToken,
+  cambiarPassword
+};

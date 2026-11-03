@@ -24,7 +24,11 @@ async function connectDB() {
       runtimeAdapters: { os }
     });
 
-    console.log("Conectado a MongoDB Atlas mediante Mongoose");
+  console.log(
+  process.env.NODE_ENV === "test"
+    ? "Conectado a MongoDB en memoria para tests"
+    : "Conectado a MongoDB mediante Mongoose"
+  );  
     return mongoose.connection;
   } catch (error) {
     console.error("Error al conectar con MongoDB:", error.message);
